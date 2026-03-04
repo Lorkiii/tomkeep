@@ -1,0 +1,9 @@
+{
+    "agents": [
+        "copilot"
+    ],
+    "skills": [
+        "livewire-development",
+        "tailwindcss-development"
+    ]
+}
