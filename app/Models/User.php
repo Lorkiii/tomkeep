@@ -21,6 +21,7 @@ class User extends Authenticatable
         'course',
         'date_of_birth',
         'school_attended',
+        'number_of_hours',
         'email',
         'password',
         'role',
@@ -45,6 +46,7 @@ class User extends Authenticatable
             'approved_at' => 'datetime',
             'last_seen_at' => 'datetime',
             'is_active' => 'boolean',
+            'number_of_hours' => 'integer',
             'password' => 'hashed',
         ];
     }

@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->string('course',255);
             $table->date('date_of_birth');
             $table->string('school_attended',255)->nullable();
-            $table->integer('number_of_hours')->nullable();
+            $table->unsignedInteger('number_of_hours')->default(0);
             $table->string('email', 255)->unique();
             $table->string('password', 255);
             $table->enum('role', ['admin', 'student'])->default('student');
