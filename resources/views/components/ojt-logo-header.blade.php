@@ -1,11 +1,7 @@
 @props(['class' => ''])
 
 <div {{ $attributes->merge(['class' => 'flex flex-col items-center ' . $class]) }}>
-    {{-- Logo placeholder circle (slot for future logo) --}}
-    <div class="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white shadow-md sm:h-28 sm:w-28">
-        @if(isset($logo))
-            {{ $logo }}
-        @endif
-    </div>
-    <h1 class="mt-4 text-xl font-bold tracking-wide text-[#1e3a5f] sm:text-2xl">OJT LOGS</h1>
+    {{-- Circular light gray outline (logo placeholder) --}}
+    <div class="h-[70px] w-[70px] shrink-0 rounded-full border-2 border-slate-300 bg-white"></div>
+    <h1 class="mt-3 text-xl font-bold uppercase tracking-wide text-slate-900 sm:text-2xl">OJT LOGS</h1>
 </div>

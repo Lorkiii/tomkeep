@@ -78,41 +78,81 @@
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-slate-700">Address</label>
-            <div class="mt-1 space-y-3">
+            <h3 class="mb-3 text-base font-bold text-slate-800">Address</h3>
+            <div class="space-y-4">
                 <div>
-                    <input
+                    <select
                         id="profile-province"
-                        type="text"
-                        wire:model="province"
-                        class="w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
-                        placeholder="Province"
-                    />
+                        wire:model.live="province"
+                        class="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-4 text-slate-900 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    >
+                        @foreach($provinceOptions ?? [] as $value => $label)
+                            <option value="{{ $value }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-slate-500">Province</p>
                     @error('province')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <input
+                    <label for="profile-municipality" class="sr-only">Municipality</label>
+                    <select
                         id="profile-municipality"
-                        type="text"
                         wire:model="municipality"
-                        class="w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
-                        placeholder="Municipality"
-                    />
+                        class="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-4 text-slate-900 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f] disabled:bg-slate-100 disabled:text-slate-500"
+                        @if($province === '' || $province === null)
+                            disabled
+                        @endif
+                    >
+                        @foreach($municipalityOptions ?? [] as $value => $label)
+                            <option value="{{ $value }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-slate-500">Municipality</p>
+                    @if($province === '' || $province === null)
+                        <p class="mt-0.5 text-xs text-amber-600">Select a province first to see municipalities.</p>
+                    @endif
                     @error('municipality')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
                     <input
-                        id="profile-street-house-number"
+                        id="profile-street"
                         type="text"
-                        wire:model="street_house_number"
-                        class="w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
-                        placeholder="Street / House No."
+                        wire:model="street"
+                        class="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                        placeholder="e.g. Main Street, Rizal Avenue"
                     />
-                    @error('street_house_number')
+                    <p class="mt-1 text-xs text-slate-500">Street</p>
+                    @error('street')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <input
+                        id="profile-house-number"
+                        type="text"
+                        wire:model="house_number"
+                        class="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                        placeholder="e.g. 123, Bldg. A Unit 5"
+                    />
+                    <p class="mt-1 text-xs text-slate-500">House Number</p>
+                    @error('house_number')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <input
+                        id="profile-postal-code"
+                        type="text"
+                        wire:model="postal_code"
+                        class="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                        placeholder="e.g. 3000, 1000"
+                    />
+                    <p class="mt-1 text-xs text-slate-500">Postal / Zip Code</p>
+                    @error('postal_code')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>

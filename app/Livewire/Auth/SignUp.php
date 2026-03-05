@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Auth;
 
-use App\Models\User;
+use App\Services\OjtUserStorage;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -23,30 +23,39 @@ class SignUp extends Component
     protected function rules(): array
     {
         return [
-            'email' => ['required', 'email', 'unique:users,email'],
+            'email' => ['required', 'email'],
             'username' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
 
-    public function signUp(): void
+    public function signUp(OjtUserStorage $storage): void
     {
         $this->validate();
 
-        $user = User::query()->create([
+        if ($storage->findByEmail($this->email)) {
+            $this->addError('email', 'This email is already registered.');
+            return;
+        }
+        if ($storage->findByUsername($this->username)) {
+            $this->addError('username', 'This username is already taken.');
+            return;
+        }
+
+        $user = $storage->create([
             'email' => $this->email,
+            'username' => $this->username,
             'password' => $this->password,
             'first_name' => 'Pending',
             'middle_name' => '',
             'last_name' => 'User',
-            'contact_number' => '00000000000',
-            'address' => ['line' => ''],
-            'course' => 'Pending',
-            'date_of_birth' => now(),
+            'contact_number' => '',
+            'address' => ['province' => '', 'municipality' => '', 'street' => '', 'house_number' => '', 'postal_code' => ''],
+            'required_hours' => 0,
             'school_attended' => '',
         ]);
 
-        session()->put('pending_profile_user_id', $user->id);
+        session()->put('ojt_user_id', $user['id']);
         $this->redirect(route('profile.setup'), navigate: true);
     }
 
