@@ -9,6 +9,12 @@ use Livewire\Attributes\Layout;
 #[Layout('components.layouts.guest')]
 class SignUp extends Component
 {
+    /** Invokable entry for full-page Livewire route. */
+    public function __invoke()
+    {
+        return parent::__invoke();
+    }
+
     public string $email = '';
     public string $username = '';
     public string $password = '';

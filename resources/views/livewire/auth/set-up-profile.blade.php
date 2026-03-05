@@ -78,17 +78,45 @@
         </div>
 
         <div>
-            <label for="profile-address" class="block text-sm font-medium text-slate-700">Address</label>
-            <input
-                id="profile-address"
-                type="text"
-                wire:model="address"
-                class="mt-1 w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
-                placeholder="Address"
-            />
-            @error('address')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
+            <label class="block text-sm font-medium text-slate-700">Address</label>
+            <div class="mt-1 space-y-3">
+                <div>
+                    <input
+                        id="profile-province"
+                        type="text"
+                        wire:model="province"
+                        class="w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                        placeholder="Province"
+                    />
+                    @error('province')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <input
+                        id="profile-municipality"
+                        type="text"
+                        wire:model="municipality"
+                        class="w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                        placeholder="Municipality"
+                    />
+                    @error('municipality')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <input
+                        id="profile-street-house-number"
+                        type="text"
+                        wire:model="street_house_number"
+                        class="w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                        placeholder="Street / House No."
+                    />
+                    @error('street_house_number')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
         </div>
 
         <div>
