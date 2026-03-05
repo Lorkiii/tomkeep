@@ -75,7 +75,7 @@
 
     <p class="mt-6 text-center text-sm text-slate-600">
         Don't have an account?
-        <a href="{{ route('signup') }}" class="font-medium underline hover:no-underline" style="color: #1f4082;">Sign Up here</a>
+        <a href="{{ route('signup') }}" class="font-medium text-[#1e3a5f] hover:underline" wire:navigate>Sign Up Now!</a>
     </p>
 </x-ojt-card>
 
