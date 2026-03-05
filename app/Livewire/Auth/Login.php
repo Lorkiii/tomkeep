@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Auth;
 
+use App\Services\OjtUserStorage;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -27,11 +29,18 @@ class Login extends Component
         ];
     }
 
-    public function login(): void
+    public function login(OjtUserStorage $storage): void
     {
         $this->validate();
-        // TODO: integrate with Laravel auth (Auth::attempt)
-        $this->addError('username', 'Authentication not yet implemented.');
+
+        $user = $storage->findByUsername($this->username);
+        if (!$user || !Hash::check($this->password, $user['password'] ?? '')) {
+            $this->addError('username', 'Invalid username or password.');
+            return;
+        }
+
+        session()->put('ojt_user_id', $user['id']);
+        $this->redirect(route('home'), navigate: true);
     }
 
     public function render()
