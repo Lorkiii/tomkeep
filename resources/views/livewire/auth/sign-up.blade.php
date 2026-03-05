@@ -114,7 +114,7 @@
 
     <p class="mt-6 text-center text-sm text-slate-600">
         Already have an account?
-        <a href="{{ route('login') }}" class="font-medium text-[#1e3a5f] hover:underline">Login here!</a>
+        <a href="{{ route('login') }}" class="font-medium text-[#1e3a5f] hover:underline" wire:navigate>Login here!</a>
     </p>
 
     <x-guest-footer />

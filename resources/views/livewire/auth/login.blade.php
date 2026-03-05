@@ -75,7 +75,7 @@
 
     <p class="mt-6 text-center text-sm text-slate-600">
         Don't have an account?
-        <a href="{{ route('signup') }}" class="font-medium text-[#1e3a5f] hover:underline">Sign Up Now!</a>
+        <a href="{{ route('signup') }}" class="font-medium text-[#1e3a5f] hover:underline" wire:navigate>Sign Up Now!</a>
     </p>
 
     <x-guest-footer extra="Location Tracked" />

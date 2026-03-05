@@ -3,7 +3,7 @@
     class="flex min-h-screen flex-col items-center justify-center"
     x-data="{
         visible: false,
-        redirectDelay: 3000
+        redirectDelay: 2000, // 2 seconds before redirecting to Terms
     }"
     x-init="
         // Fade-in content after mount

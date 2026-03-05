@@ -2,32 +2,29 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        $adminId = DB::table('users')->insertGetId([
+        $admin = User::query()->create([
             'first_name' => 'System',
             'middle_name' => null,
             'last_name' => 'Admin',
             'contact_number' => '09170000001',
-            'address' => json_encode([
+            'address' => [
                 'province' => 'Metro Manila',
                 'city' => 'Manila',
                 'barangay' => 'Barangay 659-A',
                 'street' => 'City Hall, Antonio Villegas Road',
-            ]),
+            ],
             'course' => 'BSIT',
             'date_of_birth' => '1998-05-15',
             'school_attended' => 'Tech University',
@@ -38,24 +35,21 @@ class DatabaseSeeder extends Seeder
             'approved_by' => null,
             'approved_at' => now(),
             'admin_notes' => 'Initial seeded admin account.',
-            'remember_token' => Str::random(10),
             'is_active' => false,
             'last_seen_at' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
-        $student1Id = DB::table('users')->insertGetId([
+        $student1 = User::query()->create([
             'first_name' => 'Juan',
             'middle_name' => 'Santos',
             'last_name' => 'Dela Cruz',
             'contact_number' => '09170000002',
-            'address' => json_encode([
+            'address' => [
                 'province' => 'Metro Manila',
                 'city' => 'Quezon City',
                 'barangay' => 'Batasan Hills',
                 'street' => 'No. 45 Maharlika Street',
-            ]),
+            ],
             'course' => 'BSIT',
             'date_of_birth' => '2003-02-20',
             'school_attended' => 'State University',
@@ -63,27 +57,24 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password123'),
             'role' => 'student',
             'status' => 'approved',
-            'approved_by' => $adminId,
+            'approved_by' => $admin->id,
             'approved_at' => now(),
             'admin_notes' => 'Approved for OJT timekeeping.',
-            'remember_token' => Str::random(10),
             'is_active' => false,
             'last_seen_at' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
-        $student2Id = DB::table('users')->insertGetId([
+        $student2 = User::query()->create([
             'first_name' => 'Maria',
             'middle_name' => 'Reyes',
             'last_name' => 'Lopez',
             'contact_number' => '09170000003',
-            'address' => json_encode([
+            'address' => [
                 'province' => 'Metro Manila',
                 'city' => 'Makati City',
                 'barangay' => 'Poblacion',
                 'street' => 'Unit 7, Riverside Drive',
-            ]),
+            ],
             'course' => 'BSCS',
             'date_of_birth' => '2002-11-10',
             'school_attended' => 'National College',
@@ -94,11 +85,33 @@ class DatabaseSeeder extends Seeder
             'approved_by' => null,
             'approved_at' => null,
             'admin_notes' => null,
-            'remember_token' => Str::random(10),
             'is_active' => false,
             'last_seen_at' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
+        ]);
+
+        $student3 = User::query()->create([
+            'first_name' => 'Carlo',
+            'middle_name' => 'Garcia',
+            'last_name' => 'Ramos',
+            'contact_number' => '09170000004',
+            'address' => [
+                'province' => 'Laguna',
+                'city' => 'Calamba City',
+                'barangay' => 'Real',
+                'street' => 'Blk 3 Lot 12 Rizal Street',
+            ],
+            'course' => 'BSIS',
+            'date_of_birth' => '2002-07-08',
+            'school_attended' => 'Provincial Institute',
+            'email' => 'carlo@student.local',
+            'password' => Hash::make('password123'),
+            'role' => 'student',
+            'status' => 'rejected',
+            'approved_by' => $admin->id,
+            'approved_at' => null,
+            'admin_notes' => 'Requirements incomplete.',
+            'is_active' => false,
+            'last_seen_at' => null,
         ]);
 
         DB::statement("INSERT INTO sites (company_name, address, allowed_radius_m, location, is_active, created_at, updated_at)
@@ -108,7 +121,7 @@ class DatabaseSeeder extends Seeder
 
         DB::table('daily_time_records')->insert([
             [
-                'user_id' => $student1Id,
+                'user_id' => $student1->id,
                 'date' => now()->subDays(1)->toDateString(),
                 'time_in' => '08:02:00',
                 'lunch_out' => '12:01:00',
@@ -118,7 +131,7 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => $student1Id,
+                'user_id' => $student1->id,
                 'date' => now()->toDateString(),
                 'time_in' => '07:58:00',
                 'lunch_out' => '12:00:00',
@@ -131,19 +144,22 @@ class DatabaseSeeder extends Seeder
 
         DB::table('audit_logs')->insert([
             [
-                'user_id' => $adminId,
+                'user_id' => $admin->id,
                 'action' => 'approve',
                 'model_type' => 'User',
-                'model_id' => $student1Id,
+                'model_id' => $student1->id,
                 'old_values' => json_encode(['status' => 'pending']),
-                'new_values' => json_encode(['status' => 'approved']),
+                'new_values' => json_encode([
+                    'status' => 'approved',
+                    'student_code' => $student1->student_code,
+                ]),
                 'ip_address' => '127.0.0.1',
                 'user_agent' => 'DatabaseSeeder',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'user_id' => $student1Id,
+                'user_id' => $student1->id,
                 'action' => 'time_in',
                 'model_type' => 'DailyTimeRecord',
                 'model_id' => null,
@@ -158,9 +174,27 @@ class DatabaseSeeder extends Seeder
                 'user_id' => null,
                 'action' => 'registration',
                 'model_type' => 'User',
-                'model_id' => $student2Id,
+                'model_id' => $student2->id,
                 'old_values' => null,
-                'new_values' => json_encode(['status' => 'pending']),
+                'new_values' => json_encode([
+                    'status' => 'pending',
+                    'student_code' => $student2->student_code,
+                ]),
+                'ip_address' => '127.0.0.1',
+                'user_agent' => 'DatabaseSeeder',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'user_id' => $admin->id,
+                'action' => 'reject',
+                'model_type' => 'User',
+                'model_id' => $student3->id,
+                'old_values' => json_encode(['status' => 'pending']),
+                'new_values' => json_encode([
+                    'status' => 'rejected',
+                    'student_code' => $student3->student_code,
+                ]),
                 'ip_address' => '127.0.0.1',
                 'user_agent' => 'DatabaseSeeder',
                 'created_at' => now(),

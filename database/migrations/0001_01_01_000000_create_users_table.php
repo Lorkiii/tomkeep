@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string('first_name', 30);
             $table->string('middle_name', 30)->nullable();
             $table->string('last_name', 30);
+            $table->string('student_code', 20)->nullable()->unique();
             $table->string('contact_number', 11);
             $table->json('address');
             $table->string('course',255);

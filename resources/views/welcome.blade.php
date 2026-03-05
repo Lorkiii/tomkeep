@@ -13,4 +13,4 @@
             </a>
         </div>
     </section>
-</x-layouts.app>
+</x-layouts.app>`
