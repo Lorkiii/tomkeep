@@ -1,7 +1,10 @@
 {{-- Minimal splash: white bg, incomplete circle arc, OJT LOGS (digital style), then redirect to terms --}}
 <div
     class="flex min-h-screen flex-col items-center justify-center bg-white"
-    x-data="{ visible: false, redirectDelay: 3000 }"
+    x-data="{
+        visible: false,
+        redirectDelay: 2000, // 2 seconds before redirecting to Terms
+    }"
     x-init="
         $nextTick(() => { visible = true; });
         setTimeout(() => { $wire.redirectToTerms(); }, redirectDelay);
