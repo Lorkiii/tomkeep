@@ -7,9 +7,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="min-h-screen bg-[#e8ebf0] text-slate-900 antialiased">
+<body class="min-h-screen text-slate-900 antialiased" style="background: linear-gradient(to bottom, #e0f2fe 0%, #f0f9ff 30%, #ffffff 100%);">
     <main class="flex min-h-screen flex-col items-center justify-center p-4">
-        <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div class="w-full max-w-4xl px-4">
             {{ $slot }}
         </div>
     </main>

@@ -1,16 +1,13 @@
 <div>
-    <x-ojt-logo-header class="mb-6" />
-
-    <h2 class="text-center text-lg font-bold text-slate-900">Set Up Your Profile</h2>
-
-    <form wire:submit="openConfirmation" class="mt-6 space-y-4">
+<x-ojt-card heading="Set Up Your Profile" maxWidth="max-w-md" headingClass="text-slate-500 font-medium">
+    <form wire:submit="openConfirmation" class="space-y-3">
         <div>
             <label for="profile-first-name" class="block text-sm font-medium text-slate-700">First Name <span class="text-red-500">*</span></label>
             <input
                 id="profile-first-name"
                 type="text"
                 wire:model="first_name"
-                class="mt-1 w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 placeholder="First Name"
             />
             @error('first_name')
@@ -24,7 +21,7 @@
                 id="profile-middle-name"
                 type="text"
                 wire:model="middle_name"
-                class="mt-1 w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 placeholder="Middle Name"
             />
             @error('middle_name')
@@ -38,7 +35,7 @@
                 id="profile-last-name"
                 type="text"
                 wire:model="last_name"
-                class="mt-1 w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 placeholder="Surname"
             />
             @error('last_name')
@@ -51,7 +48,7 @@
             <select
                 id="profile-gender"
                 wire:model="gender"
-                class="mt-1 w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
             >
                 <option value="">Select gender</option>
                 <option value="Male">Male</option>
@@ -69,7 +66,7 @@
                 id="profile-date-of-birth"
                 type="text"
                 wire:model="date_of_birth"
-                class="mt-1 w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 placeholder="MM/DD/YYYY"
             />
             @error('date_of_birth')
@@ -78,13 +75,13 @@
         </div>
 
         <div>
-            <h3 class="mb-3 text-base font-bold text-slate-800">Address</h3>
-            <div class="space-y-4">
+            <h3 class="mb-2 text-sm font-bold text-slate-800">Address</h3>
+            <div class="space-y-3">
                 <div>
                     <select
                         id="profile-province"
                         wire:model.live="province"
-                        class="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-4 text-slate-900 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                     >
                         @foreach($provinceOptions ?? [] as $value => $label)
                             <option value="{{ $value }}">{{ $label }}</option>
@@ -100,7 +97,7 @@
                     <select
                         id="profile-municipality"
                         wire:model="municipality"
-                        class="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-4 text-slate-900 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f] disabled:bg-slate-100 disabled:text-slate-500"
+                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
                         @if($province === '' || $province === null)
                             disabled
                         @endif
@@ -122,7 +119,7 @@
                         id="profile-street"
                         type="text"
                         wire:model="street"
-                        class="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                         placeholder="e.g. Main Street, Rizal Avenue"
                     />
                     <p class="mt-1 text-xs text-slate-500">Street</p>
@@ -135,7 +132,7 @@
                         id="profile-house-number"
                         type="text"
                         wire:model="house_number"
-                        class="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                         placeholder="e.g. 123, Bldg. A Unit 5"
                     />
                     <p class="mt-1 text-xs text-slate-500">House Number</p>
@@ -148,7 +145,7 @@
                         id="profile-postal-code"
                         type="text"
                         wire:model="postal_code"
-                        class="w-full rounded-lg border border-slate-300 bg-white py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                         placeholder="e.g. 3000, 1000"
                     />
                     <p class="mt-1 text-xs text-slate-500">Postal / Zip Code</p>
@@ -167,7 +164,7 @@
                 wire:model="required_hours"
                 min="1"
                 max="9999"
-                class="mt-1 w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 placeholder="e.g. 350"
             />
             @error('required_hours')
@@ -181,7 +178,7 @@
                 id="profile-contact-number"
                 type="text"
                 wire:model="contact_number"
-                class="mt-1 w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 placeholder="e.g. 09920003349"
             />
             @error('contact_number')
@@ -195,7 +192,7 @@
                 id="profile-school-attended"
                 type="text"
                 wire:model="school_attended"
-                class="mt-1 w-full rounded-xl border border-slate-300 py-2.5 px-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 placeholder="e.g. National University Bulacan Inc."
             />
             @error('school_attended')
@@ -206,12 +203,14 @@
         <div class="pt-2">
             <button
                 type="submit"
-                class="w-full rounded-xl bg-[#1e3a5f] px-4 py-3 font-medium text-white shadow transition hover:bg-[#152a47] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:ring-offset-2"
+                style="background-color: #1f4082;"
+                class="w-full rounded-xl px-4 py-3 font-medium font-semibold text-white shadow transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#1f4082] focus:ring-offset-2"
             >
                 Submit
             </button>
         </div>
     </form>
+</x-ojt-card>
 
     {{-- Confirmation modal --}}
     @if($showConfirmation)

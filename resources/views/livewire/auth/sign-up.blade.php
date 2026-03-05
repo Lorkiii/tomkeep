@@ -1,9 +1,7 @@
-<div>
-    <x-ojt-logo-header class="mb-6" />
+<x-ojt-card maxWidth="max-w-md">
+    <h2 class="mb-6 text-center text-sm font-medium uppercase tracking-wide" style="color: #1f4082;">Register Here</h2>
 
-    <h2 class="text-center text-lg font-bold text-slate-900">Create Your Account</h2>
-
-    <form wire:submit="signUp" class="mt-6 space-y-4">
+    <form wire:submit="signUp" class="space-y-4">
         <div>
             <label for="signup-email" class="sr-only">Email Address</label>
             <div class="relative">
@@ -16,7 +14,7 @@
                     wire:model="email"
                     placeholder="Email Address"
                     autocomplete="email"
-                    class="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 />
             </div>
             @error('email')
@@ -36,7 +34,7 @@
                     wire:model="username"
                     placeholder="Username"
                     autocomplete="username"
-                    class="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-4 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 />
             </div>
             @error('username')
@@ -56,7 +54,7 @@
                     wire:model="password"
                     placeholder="Password"
                     autocomplete="new-password"
-                    class="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-12 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-12 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 />
                 <button
                     type="button"
@@ -85,7 +83,7 @@
                     wire:model="password_confirmation"
                     placeholder="Confirm Password"
                     autocomplete="new-password"
-                    class="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-12 text-slate-900 placeholder-slate-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-12 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 />
                 <button
                     type="button"
@@ -105,17 +103,18 @@
         <div class="pt-2">
             <button
                 type="submit"
-                class="w-full rounded-xl bg-[#1e3a5f] px-4 py-3 font-medium text-white shadow transition hover:bg-[#152a47] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:ring-offset-2"
+                style="background-color: #1f4082; color: white;"
+                class="w-full rounded-xl px-4 py-3 font-medium uppercase tracking-wide shadow transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#1f4082] focus:ring-offset-2"
             >
-                Create Account
+                Sign Up
             </button>
         </div>
     </form>
 
     <p class="mt-6 text-center text-sm text-slate-600">
         Already have an account?
-        <a href="{{ route('login') }}" class="font-medium text-[#1e3a5f] hover:underline">Login here!</a>
+        <a href="{{ route('login') }}" class="font-medium underline hover:no-underline" style="color: #1f4082;">Login here</a>
     </p>
+</x-ojt-card>
 
-    <x-guest-footer />
-</div>
+<x-guest-footer />

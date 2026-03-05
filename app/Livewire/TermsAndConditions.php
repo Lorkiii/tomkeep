@@ -5,9 +5,11 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
-#[Layout('components.layouts.guest')]
+#[Layout('components.layouts.terms')]
 class TermsAndConditions extends Component
 {
+    public bool $agreed = false;
+
     /** Invokable entry for full-page Livewire route. */
     public function __invoke()
     {
