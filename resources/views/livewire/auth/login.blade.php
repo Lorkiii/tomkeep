@@ -1,13 +1,16 @@
-<x-ojt-card maxWidth="max-w-md">
-    <h2 class="mb-6 text-center text-sm font-medium uppercase tracking-wide" style="color: #1f4082;">Login Here</h2>
+<div>
+    <div class="mx-auto w-full max-w-md">
+        <div class="flex flex-col items-center">
+            <div class="h-20 w-20 shrink-0 rounded-full bg-white sm:h-24 sm:w-24" style="box-shadow: 4px 4px 12px rgba(0,0,0,0.08); margin-bottom: -2.5rem; z-index: 10;"></div>
+            <div class="w-full rounded-2xl bg-white pt-14 pb-8 pl-6 pr-6 sm:pt-16 sm:px-8 sm:pb-10" style="box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+                <h1 class="mb-4 text-center text-xl font-bold uppercase tracking-wide sm:text-2xl" style="color: #1f4082;">OJT LOGS</h1>
+                <h2 class="mb-6 text-center text-sm font-normal text-gray-800">Log In to Your Account</h2>
 
     <form wire:submit="login" class="space-y-4">
         <div>
             <label for="login-username" class="sr-only">Username</label>
             <div class="relative">
-                <span class="pointer-events-none absolute left-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-slate-100 text-slate-600">
-                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clip-rule="evenodd"/></svg>
-                </span>
+                <span class="pointer-events-none absolute left-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center text-slate-500 font-mono text-lg font-bold">@</span>
                 <input
                     id="login-username"
                     type="text"
@@ -51,32 +54,41 @@
             @enderror
         </div>
 
-        <div class="flex justify-end">
-            <a href="#" class="text-sm font-medium hover:opacity-90" style="color: #1f4082;">Forgot Password?</a>
+        <div class="flex justify-center">
+            <a href="#" class="text-sm font-medium hover:opacity-90" style="color: #e07c5e;">Forget Your Password?</a>
         </div>
 
         <div class="space-y-3 pt-2">
             <button
                 type="submit"
-                style="background-color: #1f4082; color: white;"
-                class="w-full rounded-xl px-4 py-3 font-medium uppercase tracking-wide shadow transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#1f4082] focus:ring-offset-2"
+                style="background-color: #1A53A0; color: white;"
+                class="w-full rounded-xl px-4 py-3 font-medium font-semibold shadow transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#1A53A0] focus:ring-offset-2"
             >
                 Login
             </button>
             <a
                 href="{{ route('signup') }}"
-                style="background-color: #ffd450; color: #1f2937;"
-                class="flex w-full items-center justify-center rounded-xl px-4 py-3 font-medium uppercase tracking-wide shadow transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2"
+                style="background-color: #F8D04B; color: #1f2937;"
+                class="flex w-full items-center justify-center rounded-xl px-4 py-3 font-medium font-semibold shadow transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2"
             >
-                Sign Up
+                Track Location
             </a>
         </div>
     </form>
 
     <p class="mt-6 text-center text-sm text-slate-600">
         Don't have an account?
-        <a href="{{ route('signup') }}" class="font-medium underline hover:no-underline" style="color: #1f4082;">Sign Up here</a>
+        <a href="{{ route('signup') }}" class="font-medium underline hover:no-underline" style="color: #1A53A0;">Sign Up Now!</a>
     </p>
-</x-ojt-card>
-
-<x-guest-footer />
+            </div>
+        </div>
+    </div>
+    <footer class="mt-8 text-center text-xs text-gray-400">
+        <p class="flex items-center justify-center gap-1.5">
+            Copyright &copy; {{ date('Y') }}. Powered By
+            <span class="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-300 text-gray-400" aria-hidden="true">
+                <svg class="h-2.5 w-2.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </span>
+        </p>
+    </footer>
+</div>

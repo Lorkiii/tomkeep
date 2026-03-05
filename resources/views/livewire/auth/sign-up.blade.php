@@ -1,3 +1,4 @@
+<div>
 <x-ojt-card maxWidth="max-w-md">
     <h2 class="mb-6 text-center text-sm font-medium uppercase tracking-wide" style="color: #1f4082;">Register Here</h2>
 
@@ -118,3 +119,4 @@
 </x-ojt-card>
 
 <x-guest-footer />
+</div>

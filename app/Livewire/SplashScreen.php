@@ -23,6 +23,14 @@ class SplashScreen extends Component
         $this->redirect(route('terms'), navigate: true);
     }
 
+    /**
+     * User accepted terms; redirect to login.
+     */
+    public function agree(): void
+    {
+        $this->redirect(route('login'), navigate: true);
+    }
+
     public function render()
     {
         return view('livewire.splash-screen');
