@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +13,43 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    protected static function booted(): void
+    {
+        static::saving(function (self $user): void {
+            if ($user->role !== 'student' || $user->status !== 'approved' || filled($user->student_code)) {
+                return;
+            }
+
+            $startedAt = $user->approved_at instanceof DateTimeInterface
+                ? $user->approved_at
+                : now();
+
+            $user->student_code = self::generateUniqueStudentCode($startedAt, 5);
+        });
+    }
+
+    protected static function generateUniqueStudentCode(DateTimeInterface $startedAt, int $suffixLength): string
+    {
+        $prefix = 'ST' . $startedAt->format('ym');
+        $maxLength = 12;
+
+        for ($length = $suffixLength; $length <= $maxLength; $length++) {
+            $maxValue = (10 ** $length) - 1;
+
+            for ($attempt = 0; $attempt < 25; $attempt++) {
+                $candidate = $prefix . str_pad((string) random_int(0, $maxValue), $length, '0', STR_PAD_LEFT);
+
+                if (! static::query()->where('student_code', $candidate)->exists()) {
+                    return $candidate;
+                }
+            }
+        }
+
+        throw new \RuntimeException('Unable to generate unique student code for approved user.');
+    }
+
     protected $fillable = [
+        'student_code',
         'first_name',
         'middle_name',
         'last_name',
