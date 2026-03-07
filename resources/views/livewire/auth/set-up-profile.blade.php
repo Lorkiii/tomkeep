@@ -1,277 +1,147 @@
-<div>
-<x-ojt-card heading="Set Up Your Profile" maxWidth="max-w-md" headingClass="text-slate-500 font-medium">
-    <form wire:submit="openConfirmation" class="space-y-3">
-        <div>
-            <label for="profile-first-name" class="block text-sm font-medium text-slate-700">First Name <span class="text-red-500">*</span></label>
-            <input
-                id="profile-first-name"
-                type="text"
-                wire:model="first_name"
-                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                placeholder="First Name"
-            />
-            @error('first_name')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
+<div class="min-h-screen bg-transparent flex flex-col items-center justify-center p-4">
+    <div class="relative w-full max-w-md mt-16 mb-8">
 
-        <div>
-            <label for="profile-middle-name" class="block text-sm font-medium text-slate-700">Middle Name <span class="text-red-500">*</span></label>
-            <input
-                id="profile-middle-name"
-                type="text"
-                wire:model="middle_name"
-                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                placeholder="Middle Name"
-            />
-            @error('middle_name')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
+        <div class="relative bg-white rounded-[2.5rem] shadow-[0px_10px_50px_rgba(31,64,130,0.08)] p-10 pt-16 z-10">
+            
+            <div class="space-y-6">
+                <h1 class="text-center text-xl font-bold text-[#1f4082]">Set Up Your Profile</h1>
 
-        <div>
-            <label for="profile-last-name" class="block text-sm font-medium text-slate-700">Surname <span class="text-red-500">*</span></label>
-            <input
-                id="profile-last-name"
-                type="text"
-                wire:model="last_name"
-                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                placeholder="Surname"
-            />
-            @error('last_name')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
+                <form wire:submit="openConfirmation" class="space-y-4">
+                    
+                    <div>
+                        <label for="profile-first-name" class="block text-[11px] font-bold text-[#1f4082] ml-1">First Name <span class="text-red-500">*</span></label>
+                        <input id="profile-first-name" type="text" wire:model="first_name" 
+                            class="mt-1 w-full rounded-2xl border border-[#E2E8F0] px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none"
+                            placeholder="First Name" />
+                        @error('first_name') <span class="text-red-500 text-[10px] ml-1">{{ $message }}</span> @enderror
+                    </div>
 
-        <div>
-            <label for="profile-gender" class="block text-sm font-medium text-slate-700">Gender <span class="text-red-500">*</span></label>
-            <select
-                id="profile-gender"
-                wire:model="gender"
-                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-            >
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-            </select>
-            @error('gender')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
+                    <div>
+                        <label for="profile-middle-name" class="block text-[11px] font-bold text-[#1f4082] ml-1">Middle Name <span class="text-red-500">*</span></label>
+                        <input id="profile-middle-name" type="text" wire:model="middle_name" 
+                            class="mt-1 w-full rounded-2xl border border-[#E2E8F0] px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none"
+                            placeholder="Middle Name" />
+                        @error('middle_name') <span class="text-red-500 text-[10px] ml-1">{{ $message }}</span> @enderror
+                    </div>
 
-        <div>
-            <label for="profile-date-of-birth" class="block text-sm font-medium text-slate-700">Birthday</label>
-            <input
-                id="profile-date-of-birth"
-                type="text"
-                wire:model="date_of_birth"
-                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                placeholder="MM/DD/YYYY"
-            />
-            @error('date_of_birth')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
+                    <div>
+                        <label for="profile-last-name" class="block text-[11px] font-bold text-[#1f4082] ml-1">Last Name <span class="text-red-500">*</span></label>
+                        <input id="profile-last-name" type="text" wire:model="last_name" 
+                            class="mt-1 w-full rounded-2xl border border-[#E2E8F0] px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none"
+                            placeholder="Last Name" />
+                        @error('last_name') <span class="text-red-500 text-[10px] ml-1">{{ $message }}</span> @enderror
+                    </div>
 
-        <div>
-            <h3 class="mb-2 text-sm font-bold text-slate-800">Address</h3>
-            <div class="space-y-3">
-                <div>
-                    <select
-                        id="profile-province"
-                        wire:model.live="province"
-                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                    >
-                        @foreach($provinceOptions ?? [] as $value => $label)
-                            <option value="{{ $value }}">{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    <p class="mt-1 text-xs text-slate-500">Province</p>
-                    @error('province')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div>
-                    <label for="profile-municipality" class="sr-only">Municipality</label>
-                    <select
-                        id="profile-municipality"
-                        wire:model="municipality"
-                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
-                        @if($province === '' || $province === null)
-                            disabled
+                    <div>
+                        <label for="profile-gender" class="block text-[11px] font-bold text-[#1f4082] ml-1">Gender <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <select id="profile-gender" wire:model="gender" 
+                                class="mt-1 w-full appearance-none rounded-2xl border border-[#E2E8F0] px-4 py-2.5 text-sm text-slate-700 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none bg-white">
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                        @error('gender') <span class="text-red-500 text-[10px] ml-1">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <label for="profile-date-of-birth" class="block text-[11px] font-bold text-[#1f4082] ml-1">Birthday</label>
+                        <input id="profile-date-of-birth" type="text" wire:model="date_of_birth" 
+                            class="mt-1 w-full rounded-2xl border border-[#E2E8F0] px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none"
+                            placeholder="MM/DD/YYYY" />
+                    </div>
+
+                    <div class="space-y-3 pt-2">
+                        <label class="block text-[12px] font-bold text-[#1f4082] ml-1">Address</label>
+                        
+                        <div class="relative">
+                            <select wire:model.live="province" class="w-full appearance-none rounded-2xl border border-[#E2E8F0] py-2.5 px-4 text-slate-700 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none bg-white">
+                                <option value="">Select Province</option>
+                                @foreach($provinces as $p)
+                                    <option value="{{ $p }}">{{ $p }}</option>
+                                @endforeach
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                        <span class="block text-[10px] text-slate-400 ml-1 mt-[-8px]">Province</span>
+                        @error('province') <span class="text-red-500 text-[10px] ml-1">{{ $message }}</span> @enderror
+
+                        <div class="relative">
+                            <select wire:model="municipality" class="w-full appearance-none rounded-2xl border border-[#E2E8F0] py-2.5 px-4 text-slate-700 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none bg-white">
+                                <option value="">Select Municipality</option>
+                                @foreach($municipalities as $m)
+                                    <option value="{{ $m }}">{{ $m }}</option>
+                                @endforeach
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                        <span class="block text-[10px] text-slate-400 ml-1 mt-[-8px]">Municipality</span>
+                        @error('municipality') <span class="text-red-500 text-[10px] ml-1">{{ $message }}</span> @enderror
+                        
+                        @if(empty($province))
+                            <p class="text-[10px] text-orange-500 font-medium ml-1 mt-[-8px]">Select a province first to see municipalities.</p>
                         @endif
-                    >
-                        @foreach($municipalityOptions ?? [] as $value => $label)
-                            <option value="{{ $value }}">{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    <p class="mt-1 text-xs text-slate-500">Municipality</p>
-                    @if($province === '' || $province === null)
-                        <p class="mt-0.5 text-xs text-amber-600">Select a province first to see municipalities.</p>
-                    @endif
-                    @error('municipality')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div>
-                    <input
-                        id="profile-street"
-                        type="text"
-                        wire:model="street"
-                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                        placeholder="e.g. Main Street, Rizal Avenue"
-                    />
-                    <p class="mt-1 text-xs text-slate-500">Street</p>
-                    @error('street')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div>
-                    <input
-                        id="profile-house-number"
-                        type="text"
-                        wire:model="house_number"
-                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                        placeholder="e.g. 123, Bldg. A Unit 5"
-                    />
-                    <p class="mt-1 text-xs text-slate-500">House Number</p>
-                    @error('house_number')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div>
-                    <input
-                        id="profile-postal-code"
-                        type="text"
-                        wire:model="postal_code"
-                        class="w-full rounded-lg border border-slate-200 bg-white py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                        placeholder="e.g. 3000, 1000"
-                    />
-                    <p class="mt-1 text-xs text-slate-500">Postal / Zip Code</p>
-                    @error('postal_code')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+
+                        <div>
+                            <input type="text" wire:model="street" class="w-full rounded-2xl border border-[#E2E8F0] py-2.5 px-4 text-sm text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none" placeholder="e.g. Main Street, Rizal Avenue" />
+                            <span class="block text-[10px] text-slate-400 ml-1 mt-1">Street</span>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <div class="w-1/2">
+                                <input type="text" wire:model="house_number" class="w-full rounded-2xl border border-[#E2E8F0] py-2.5 px-4 text-sm text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none" placeholder="e.g. 123" />
+                                <span class="block text-[10px] text-slate-400 ml-1 mt-1">House Number</span>
+                            </div>
+                            <div class="w-1/2">
+                                <input type="text" wire:model="postal_code" class="w-full rounded-2xl border border-[#E2E8F0] py-2.5 px-4 text-sm text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none" placeholder="e.g. 3000" />
+                                <span class="block text-[10px] text-slate-400 ml-1 mt-1">Postal Code</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="profile-required-hours" class="block text-[11px] font-bold text-[#1f4082] ml-1">No. of Hours <span class="text-red-500">*</span></label>
+                        <input id="profile-required-hours" type="number" wire:model="required_hours" 
+                            class="mt-1 w-full rounded-2xl border border-[#E2E8F0] px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none"
+                            placeholder="0" />
+                        @error('required_hours') <span class="text-red-500 text-[10px] ml-1">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <label for="profile-contact-number" class="block text-[11px] font-bold text-[#1f4082] ml-1">Contact Number <span class="text-red-500">*</span></label>
+                        <input id="profile-contact-number" type="text" wire:model="contact_number" 
+                            class="mt-1 w-full rounded-2xl border border-[#E2E8F0] px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none"
+                            placeholder="e.g. 09920003349" />
+                        @error('contact_number') <span class="text-red-500 text-[10px] ml-1">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <label for="profile-school-attended" class="block text-[11px] font-bold text-[#1f4082] ml-1">University Attended <span class="text-red-500">*</span></label>
+                        <input id="profile-school-attended" type="text" wire:model="school_attended" 
+                            class="mt-1 w-full rounded-2xl border border-[#E2E8F0] px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none"
+                            placeholder="e.g. National University" />
+                        @error('school_attended') <span class="text-red-500 text-[10px] ml-1">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="pt-6 pb-2">
+                        <button type="submit" 
+                            class="w-full rounded-2xl bg-[#224891] px-4 py-4 text-sm font-bold text-white shadow-lg shadow-blue-900/20 hover:bg-[#1a366e] transition-all active:scale-[0.98]">
+                            Submit
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-
-        <div>
-            <label for="profile-required-hours" class="block text-sm font-medium text-slate-700">No. of Hours <span class="text-red-500">*</span></label>
-            <input
-                id="profile-required-hours"
-                type="number"
-                wire:model="required_hours"
-                min="1"
-                max="9999"
-                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                placeholder="e.g. 350"
-            />
-            @error('required_hours')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="profile-contact-number" class="block text-sm font-medium text-slate-700">Contact Number <span class="text-red-500">*</span></label>
-            <input
-                id="profile-contact-number"
-                type="text"
-                wire:model="contact_number"
-                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                placeholder="e.g. 09920003349"
-            />
-            @error('contact_number')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="profile-school-attended" class="block text-sm font-medium text-slate-700">University Attended <span class="text-red-500">*</span></label>
-            <input
-                id="profile-school-attended"
-                type="text"
-                wire:model="school_attended"
-                class="mt-1 w-full rounded-xl border border-slate-200 py-2.5 px-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                placeholder="e.g. National University Bulacan Inc."
-            />
-            @error('school_attended')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div class="pt-2">
-            <button
-                type="submit"
-                style="background-color: #1f4082;"
-                class="w-full rounded-xl px-4 py-3 font-medium font-semibold text-white shadow transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#1f4082] focus:ring-offset-2"
-            >
-                Submit
-            </button>
-        </div>
-    </form>
-</x-ojt-card>
-
-    {{-- Confirmation modal --}}
-    @if($showConfirmation)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="confirmation-title">
-            <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-                <h3 id="confirmation-title" class="text-lg font-bold text-slate-900">Confirmation</h3>
-                <div class="mt-4 flex gap-4">
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[#1e3a5f]">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/></svg>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-slate-700">Are you sure all the information provided is correct?</p>
-                        <p class="mt-2 text-sm font-medium text-amber-700">Number of hours cannot be changed later.</p>
-                    </div>
-                </div>
-                <div class="mt-6 flex gap-3">
-                    <button
-                        type="button"
-                        wire:click="closeConfirmation"
-                        class="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-2.5 font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
-                    >
-                        Wait
-                    </button>
-                    <button
-                        type="button"
-                        wire:click="submitProfile"
-                        class="flex-1 rounded-xl bg-[#1e3a5f] px-4 py-2.5 font-medium text-white shadow transition hover:bg-[#152a47] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:ring-offset-2"
-                    >
-                        Yes
-                    </button>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- Success modal --}}
-    @if($showSuccess)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="success-title">
-            <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-                <h3 id="success-title" class="text-lg font-bold text-slate-900">Account Created</h3>
-                <div class="mt-4 flex gap-4">
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/></svg>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <p class="font-medium text-slate-900">Account Successfully Created!</p>
-                        <p class="mt-1 text-sm text-slate-600">The system received your account creation request. Please wait for confirmation message on your email.</p>
-                    </div>
-                </div>
-                <div class="mt-6">
-                    <button
-                        type="button"
-                        wire:click="closeSuccess"
-                        class="w-full rounded-xl bg-[#1e3a5f] px-4 py-2.5 font-medium text-white shadow transition hover:bg-[#152a47] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:ring-offset-2"
-                    >
-                        OK
-                    </button>
-                </div>
-            </div>
-        </div>
-    @endif
+    </div>
 
     <x-guest-footer />
 </div>
