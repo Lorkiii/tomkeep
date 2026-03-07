@@ -2,11 +2,16 @@
 
 namespace App\Livewire\Auth;
 
-use App\Services\OjtUserStorage;
+use App\Actions\Auth\RegisterStudent;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 #[Layout('components.layouts.guest')]
+/**
+ * Registration page component for creating student accounts.
+ */
 class SignUp extends Component
 {
     /** Invokable entry for full-page Livewire route. */
@@ -23,39 +28,26 @@ class SignUp extends Component
     protected function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
-            'username' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', Rule::unique('users', 'email')],
+            'username' => ['required', 'string', 'max:50', Rule::unique('users', 'username')],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
 
-    public function signUp(OjtUserStorage $storage): void
+    public function signUp(RegisterStudent $registerStudent): void
     {
+        // Validate form input, create user, then authenticate and continue to profile setup.
         $this->validate();
 
-        if ($storage->findByEmail($this->email)) {
-            $this->addError('email', 'This email is already registered.');
-            return;
-        }
-        if ($storage->findByUsername($this->username)) {
-            $this->addError('username', 'This username is already taken.');
-            return;
-        }
+        $user = $registerStudent->execute(
+            email: $this->email,
+            username: $this->username,
+            password: $this->password,
+        );
 
-        $user = $storage->create([
-            'email' => $this->email,
-            'username' => $this->username,
-            'password' => $this->password,
-            'first_name' => 'Pending',
-            'middle_name' => '',
-            'last_name' => 'User',
-            'contact_number' => '',
-            'address' => ['province' => '', 'municipality' => '', 'street' => '', 'house_number' => '', 'postal_code' => ''],
-            'required_hours' => 0,
-            'school_attended' => '',
-        ]);
+        Auth::login($user);
+        request()->session()->regenerate();
 
-        session()->put('ojt_user_id', $user['id']);
         $this->redirect(route('profile.setup'), navigate: true);
     }
 

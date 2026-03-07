@@ -1,3 +1,4 @@
+{{-- Guest layout used by splash/auth onboarding screens. --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -14,8 +15,5 @@
         </div>
     </main>
     @livewireScripts
-    <script>
-        try { localStorage.removeItem('ojt_current_user'); } catch (e) {}
-    </script>
 </body>
 </html>

@@ -18,7 +18,7 @@ class TermsAndConditions extends Component
 
     public function agree(): void
     {
-        // TODO: persist agreement (e.g. session or DB) when needed
+        session()->put('terms_agreed', true);
         $this->redirect(route('login'), navigate: true);
     }
 

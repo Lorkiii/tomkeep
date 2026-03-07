@@ -6,14 +6,17 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Ensures protected OJT routes are accessible only to authenticated users.
+ */
 class EnsureOjtUser
 {
     /**
-     * Redirect to login if no OJT user is in session (local storage / no DB).
+     * Redirect to login if user is not authenticated.
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!session()->has('ojt_user_id')) {
+        if (! $request->user()) {
             return redirect()->route('login');
         }
 

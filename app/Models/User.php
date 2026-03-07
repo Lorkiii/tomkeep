@@ -49,16 +49,19 @@ class User extends Authenticatable
     }
 
     protected $fillable = [
+        'username',
         'student_code',
         'first_name',
         'middle_name',
         'last_name',
+        'gender',
         'contact_number',
         'address',
         'course',
         'date_of_birth',
         'school_attended',
         'number_of_hours',
+        'profile_completed',
         'email',
         'password',
         'role',
@@ -79,14 +82,16 @@ class User extends Authenticatable
     {
         return [
             'date_of_birth' => 'date',
-            'address'=> 'array',
+            'address' => 'array',
             'approved_at' => 'datetime',
             'last_seen_at' => 'datetime',
             'is_active' => 'boolean',
+            'profile_completed' => 'boolean',
             'number_of_hours' => 'integer',
             'password' => 'hashed',
         ];
     }
+
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');

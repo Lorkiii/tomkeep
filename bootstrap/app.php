@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'ojt.user' => \App\Http\Middleware\EnsureOjtUser::class,
+            'profile.completed' => \App\Http\Middleware\EnsureProfileCompleted::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

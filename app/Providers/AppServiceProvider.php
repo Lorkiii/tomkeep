@@ -2,10 +2,15 @@
 
 namespace App\Providers;
 
-use App\Services\OjtUserStorage;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * Application service provider for shared bootstrapping concerns.
+ */
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -21,12 +26,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Share current OJT user (from session + JSON storage) so views can show name, email, etc.
+        // Share authenticated user data with views in the same array shape expected by current Blade templates.
         View::composer('*', function ($view): void {
-            $userId = session('ojt_user_id');
-            $view->with('currentOjtUser', $userId
-                ? app(OjtUserStorage::class)->findById($userId)
-                : null);
+            if (! Schema::hasTable('users')) {
+                $view->with('currentOjtUser', null);
+
+                return;
+            }
+
+            $user = User::query()->find(Auth::id());
+            $userArray = $user?->toArray();
+
+            $view->with('currentOjtUser', $userArray);
         });
     }
 }

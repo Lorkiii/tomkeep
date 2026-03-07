@@ -2,12 +2,14 @@
 
 namespace App\Livewire\Auth;
 
-use App\Services\OjtUserStorage;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
 #[Layout('components.layouts.guest')]
+/**
+ * Username/password login component backed by Laravel Auth.
+ */
 class Login extends Component
 {
     public string $username = '';
@@ -29,18 +31,20 @@ class Login extends Component
         ];
     }
 
-    public function login(OjtUserStorage $storage): void
+    public function login(): void
     {
+        // Attempt authentication and route users based on profile completion state.
         $this->validate();
 
-        $user = $storage->findByUsername($this->username);
-        if (!$user || !Hash::check($this->password, $user['password'] ?? '')) {
+        if (!Auth::attempt(['username' => $this->username, 'password' => $this->password])) {
             $this->addError('username', 'Invalid username or password.');
             return;
         }
 
-        session()->put('ojt_user_id', $user['id']);
-        $this->redirect(route('home'), navigate: true);
+        request()->session()->regenerate();
+
+        $target = Auth::user()?->profile_completed ? 'home' : 'profile.setup';
+        $this->redirect(route($target), navigate: true);
     }
 
     public function render()

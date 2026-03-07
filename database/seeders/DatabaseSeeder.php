@@ -7,6 +7,9 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Seeds baseline local testing data (admin, students, sites, DTR, and audit logs).
+ */
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -14,10 +17,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed fixed accounts for local development login and workflow testing.
         $admin = User::query()->create([
+            'username' => 'admin',
             'first_name' => 'System',
             'middle_name' => null,
             'last_name' => 'Admin',
+            'gender' => 'Other',
             'contact_number' => '09170000001',
             'address' => [
                 'province' => 'Metro Manila',
@@ -28,6 +34,8 @@ class DatabaseSeeder extends Seeder
             'course' => 'BSIT',
             'date_of_birth' => '1998-05-15',
             'school_attended' => 'Tech University',
+            'number_of_hours' => 0,
+            'profile_completed' => true,
             'email' => 'admin@timekeep.local',
             'password' => Hash::make('password123'),
             'role' => 'admin',
@@ -40,9 +48,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $student1 = User::query()->create([
+            'username' => 'juan',
             'first_name' => 'Juan',
             'middle_name' => 'Santos',
             'last_name' => 'Dela Cruz',
+            'gender' => 'Male',
             'contact_number' => '09170000002',
             'address' => [
                 'province' => 'Metro Manila',
@@ -53,6 +63,8 @@ class DatabaseSeeder extends Seeder
             'course' => 'BSIT',
             'date_of_birth' => '2003-02-20',
             'school_attended' => 'State University',
+            'number_of_hours' => 400,
+            'profile_completed' => true,
             'email' => 'juan@student.local',
             'password' => Hash::make('password123'),
             'role' => 'student',
@@ -65,9 +77,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $student2 = User::query()->create([
+            'username' => 'maria',
             'first_name' => 'Maria',
             'middle_name' => 'Reyes',
             'last_name' => 'Lopez',
+            'gender' => 'Female',
             'contact_number' => '09170000003',
             'address' => [
                 'province' => 'Metro Manila',
@@ -78,6 +92,8 @@ class DatabaseSeeder extends Seeder
             'course' => 'BSCS',
             'date_of_birth' => '2002-11-10',
             'school_attended' => 'National College',
+            'number_of_hours' => 350,
+            'profile_completed' => true,
             'email' => 'maria@student.local',
             'password' => Hash::make('password123'),
             'role' => 'student',
@@ -90,9 +106,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $student3 = User::query()->create([
+            'username' => 'carlo',
             'first_name' => 'Carlo',
             'middle_name' => 'Garcia',
             'last_name' => 'Ramos',
+            'gender' => 'Male',
             'contact_number' => '09170000004',
             'address' => [
                 'province' => 'Laguna',
@@ -103,6 +121,8 @@ class DatabaseSeeder extends Seeder
             'course' => 'BSIS',
             'date_of_birth' => '2002-07-08',
             'school_attended' => 'Provincial Institute',
+            'number_of_hours' => 300,
+            'profile_completed' => true,
             'email' => 'carlo@student.local',
             'password' => Hash::make('password123'),
             'role' => 'student',

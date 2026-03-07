@@ -1,3 +1,4 @@
+{{-- Student dashboard: progress summary, computed stats, and activity logs. --}}
 <x-layouts.dashboard title="Dashboard" active="dashboard">
     <div class="mb-6 flex items-center justify-between">
         <div class="flex items-center gap-2">

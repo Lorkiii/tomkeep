@@ -1,3 +1,4 @@
+{{-- Terms page layout used during pre-login onboarding flow. --}}
 {{-- Terms page: dark header/footer, light blue-to-white gradient (brightest at center), centered card --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -25,8 +26,5 @@
     </footer>
 
     @livewireScripts
-    <script>
-        try { localStorage.removeItem('ojt_current_user'); } catch (e) {}
-    </script>
 </body>
 </html>

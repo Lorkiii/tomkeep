@@ -2,12 +2,18 @@
 
 namespace App\Livewire\Auth;
 
-use App\Services\OjtUserStorage;
+use App\Actions\Profile\CompleteProfile;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 
 #[Layout('components.layouts.guest')]
+/**
+ * Captures and persists required student profile information after registration/login.
+ */
 class SetUpProfile extends Component
 {
     /** Invokable entry for full-page Livewire route. */
@@ -37,11 +43,21 @@ class SetUpProfile extends Component
     #[Validate('nullable|string|max:100')]
     public string $municipality = '';
 
-    #[Validate('nullable|string|max:255')]
-    public string $street = '';
+    #[Validate('nullable|string|max:100')]
+    public string $barangay = '';
 
-    #[Validate('nullable|string|max:50')]
-    public string $house_number = '';
+    #[Validate('nullable|string|max:255')]
+    public string $street_house_number = '';
+
+    // PSGC codes used by dropdowns and API calls.
+    #[Validate('nullable|string|max:20')]
+    public string $province_code = '';
+
+    #[Validate('nullable|string|max:20')]
+    public string $municipality_code = '';
+
+    #[Validate('nullable|string|max:20')]
+    public string $barangay_code = '';
 
     #[Validate('nullable|string|max:20')]
     public string $postal_code = '';
@@ -58,46 +74,87 @@ class SetUpProfile extends Component
     public bool $showConfirmation = false;
     public bool $showSuccess = false;
 
-    public function mount(OjtUserStorage $storage): void
+    public array $provinceOptions = ['' => 'Select Province'];
+    public array $municipalityOptions = ['' => 'Select Municipality'];
+    public array $barangayOptions = ['' => 'Select Barangay'];
+
+    public ?string $locationLoadError = null;
+    public function mount(): void
     {
-        $user = $this->getUserForProfile($storage);
+        // Pre-fill the form from the authenticated user's current profile data.
+        $user = $this->getUserForProfile();
         if (!$user) {
-            $this->redirect(route('signup'), navigate: true);
+            $this->redirect(route('login'), navigate: true);
             return;
         }
-        $this->first_name = $user['first_name'] ?? '';
-        $this->middle_name = $user['middle_name'] ?? '';
-        $this->last_name = $user['last_name'] ?? '';
-        $this->gender = $user['gender'] ?? '';
-        $dob = $user['date_of_birth'] ?? null;
+        $this->first_name = $user->first_name ?? '';
+        $this->middle_name = $user->middle_name ?? '';
+        $this->last_name = $user->last_name ?? '';
+        $this->gender = $user->gender ?? '';
+        $dob = $user->date_of_birth;
         if ($dob) {
-            $this->date_of_birth = is_string($dob) ? (str_contains($dob, '/') ? $dob : \Carbon\Carbon::parse($dob)->format('m/d/Y')) : '';
+            $this->date_of_birth = $dob instanceof \Carbon\CarbonInterface
+                ? $dob->format('m/d/Y')
+                : \Carbon\Carbon::parse((string) $dob)->format('m/d/Y');
         }
 
-        $address = $user['address'] ?? [];
+        $address = $user->address ?? [];
         if (is_string($address)) {
             $address = [];
         }
         $addr = is_array($address) ? $address : [];
+
         $this->province = $addr['province'] ?? $addr['state_province'] ?? '';
         $this->municipality = $addr['municipality'] ?? $addr['city'] ?? '';
-        $provinces = static::getProvinceMunicipalities();
-        if ($this->province !== '' && $this->municipality !== '' && isset($provinces[$this->province]) && ! in_array($this->municipality, $provinces[$this->province], true)) {
-            $this->municipality = '';
+        $this->barangay = $addr['barangay'] ?? '';
+        $this->street_house_number = (string) (
+            $addr['street_house_number']
+            ?? trim(((string) ($addr['street'] ?? '')) . ' ' . ((string) ($addr['house_number'] ?? '')))
+        );
+        $this->province_code = (string) ($addr['province_code'] ?? '');
+        $this->municipality_code = (string) ($addr['municipality_code'] ?? '');
+        $this->barangay_code = (string) ($addr['barangay_code'] ?? '');
+
+
+        $this->required_hours = (string) ($user->number_of_hours ?? '');
+        $this->contact_number = $user->contact_number ?? '';
+        $this->school_attended = $user->school_attended ?? '';
+
+        // Build cascading dropdown options from PSGC API.
+        $this->loadProvinces();
+
+        if ($this->province_code === '' && $this->province !== '') {
+            $this->province_code = $this->findCodeByName($this->provinceOptions, $this->province);
         }
-        $this->street = $addr['street'] ?? $addr['street_address'] ?? '';
-        $this->house_number = $addr['house_number'] ?? $addr['street_address_line_2'] ?? '';
-        $this->postal_code = $addr['postal_code'] ?? '';
-        $this->required_hours = (string) ($user['required_hours'] ?? '');
-        $this->contact_number = $user['contact_number'] ?? '';
-        $this->school_attended = $user['school_attended'] ?? '';
+
+        if ($this->province_code !== '') {
+            $this->loadMunicipalities($this->province_code);
+            $this->province = $this->provinceOptions[$this->province_code] ?? $this->province;
+        }
+
+        if ($this->municipality_code === '' && $this->municipality !== '') {
+            $this->municipality_code = $this->findCodeByName($this->municipalityOptions, $this->municipality);
+        }
+
+        if ($this->municipality_code !== '') {
+            $this->loadBarangays($this->municipality_code);
+            $this->municipality = $this->municipalityOptions[$this->municipality_code] ?? $this->municipality;
+        }
+
+        if ($this->barangay_code === '' && $this->barangay !== '') {
+            $this->barangay_code = $this->findCodeByName($this->barangayOptions, $this->barangay);
+        }
+
+        if ($this->barangay_code !== '') {
+            $this->barangay = $this->barangayOptions[$this->barangay_code] ?? $this->barangay;
+        }
     }
 
-    /** @return array<string, mixed>|null */
-    protected function getUserForProfile(OjtUserStorage $storage): ?array
+    protected function getUserForProfile(): ?User
     {
-        $id = session('ojt_user_id');
-        return $id ? $storage->findById($id) : null;
+        $user = Auth::user();
+
+        return $user instanceof User ? $user : null;
     }
 
     protected function rules(): array
@@ -110,8 +167,7 @@ class SetUpProfile extends Component
             'date_of_birth' => ['nullable', 'date_format:m/d/Y'],
             'province' => ['nullable', 'string', 'max:100'],
             'municipality' => ['nullable', 'string', 'max:100'],
-            'street' => ['nullable', 'string', 'max:255'],
-            'house_number' => ['nullable', 'string', 'max:50'],
+            'street_house_number' => ['nullable', 'string', 'max:255'],
             'postal_code' => ['nullable', 'string', 'max:20'],
             'required_hours' => ['required', 'integer', 'min:1', 'max:9999'],
             'contact_number' => ['required', 'string', 'max:11'],
@@ -130,10 +186,11 @@ class SetUpProfile extends Component
         $this->showConfirmation = false;
     }
 
-    public function submitProfile(OjtUserStorage $storage): void
+    public function submitProfile(CompleteProfile $completeProfile): void
     {
+        // Persist normalized profile fields and mark profile as completed.
         $this->validate();
-        $user = $this->getUserForProfile($storage);
+        $user = $this->getUserForProfile();
         if (!$user) {
             $this->addError('first_name', 'Session expired. Please sign up again.');
             return;
@@ -143,7 +200,7 @@ class SetUpProfile extends Component
             ? \Carbon\Carbon::createFromFormat('m/d/Y', $this->date_of_birth)->format('Y-m-d')
             : null;
 
-        $storage->update($user['id'], [
+        $completeProfile->execute($user, [
             'first_name' => $this->first_name,
             'middle_name' => $this->middle_name,
             'last_name' => $this->last_name,
@@ -152,13 +209,16 @@ class SetUpProfile extends Component
             'address' => [
                 'province' => $this->province,
                 'municipality' => $this->municipality,
-                'street' => $this->street,
-                'house_number' => $this->house_number,
-                'postal_code' => $this->postal_code,
+                'street_house_number' => $this->street_house_number,
+                'province_code' => $this->province_code,
+                'municipality_code' => $this->municipality_code,
+                'barangay_code' => $this->barangay_code,
+
             ],
-            'required_hours' => (int) $this->required_hours,
+            'number_of_hours' => (int) $this->required_hours,
             'contact_number' => $this->contact_number,
             'school_attended' => $this->school_attended,
+            'course' => null,
         ]);
 
         $this->showConfirmation = false;
@@ -171,67 +231,132 @@ class SetUpProfile extends Component
         $this->redirect(route('home'), navigate: true);
     }
 
-    /** Province -> municipalities (cascading dropdown). */
-    public static function getProvinceMunicipalities(): array
+    public function updatedProvinceCode(string $value): void
     {
-        return [
-            'Abra' => ['Bangued', 'Bucay', 'Bucloc', 'Daguioman', 'Danglas', 'Dolores', 'La Paz', 'Lacub', 'Lagangilang', 'Lagayan', 'Langiden', 'Licuan-Baay', 'Luba', 'Malibcong', 'Manabo', 'Peñarrubia', 'Pidigan', 'Pilar', 'Sallapadan', 'San Isidro', 'San Juan', 'San Quintin', 'Tayum', 'Tineg', 'Tubo', 'Villaviciosa', 'Other'],
-            'Bulacan' => ['Angat', 'Balagtas', 'Baliuag', 'Bocaue', 'Bulacan', 'Bustos', 'Calumpit', 'Doña Remedios Trinidad', 'Guiguinto', 'Hagonoy', 'Malolos', 'Marilao', 'Meycauayan', 'Norzagaray', 'Obando', 'Pandi', 'Paombong', 'Plaridel', 'Pulilan', 'San Ildefonso', 'San Jose del Monte', 'San Miguel', 'San Rafael', 'Santa Maria', 'Other'],
-            'Cavite' => ['Alfonso', 'Amadeo', 'Bacoor', 'Carmona', 'Cavite City', 'Dasmariñas', 'General Emilio Aguinaldo', 'General Mariano Alvarez', 'General Trias', 'Imus', 'Indang', 'Kawit', 'Magallanes', 'Maragondon', 'Mendez', 'Naic', 'Noveleta', 'Rosario', 'Silang', 'Tagaytay', 'Tanza', 'Ternate', 'Trece Martires City', 'Other'],
-            'Laguna' => ['Alaminos', 'Bay', 'Biñan', 'Cabuyao', 'Calamba', 'Calauan', 'Cavinti', 'Famy', 'Kalayaan', 'Liliw', 'Los Baños', 'Luisiana', 'Lumban', 'Mabitac', 'Magdalena', 'Majayjay', 'Nagcarlan', 'Paete', 'Pagsanjan', 'Pakil', 'Pangil', 'Pila', 'Rizal', 'San Pablo', 'San Pedro', 'Santa Cruz', 'Santa Maria', 'Santa Rosa', 'Siniloan', 'Victoria', 'Other'],
-            'Metro Manila' => ['Caloocan', 'Las Piñas', 'Makati', 'Malabon', 'Mandaluyong', 'Manila', 'Marikina', 'Muntinlupa', 'Navotas', 'Parañaque', 'Pasay', 'Pasig', 'Pateros', 'Quezon City', 'San Juan', 'Taguig', 'Valenzuela', 'Other'],
-            'Pampanga' => ['Angeles', 'Apalit', 'Arayat', 'Bacolor', 'Candaba', 'Floridablanca', 'Guagua', 'Lubao', 'Mabalacat', 'Macabebe', 'Magalang', 'Masantol', 'Mexico', 'Minalin', 'Porac', 'San Fernando', 'San Luis', 'San Simon', 'Santa Ana', 'Santa Rita', 'Santo Tomas', 'Sasmuan', 'Other'],
-            'Rizal' => ['Angono', 'Antipolo', 'Baras', 'Binangonan', 'Cainta', 'Cardona', 'Jalajala', 'Morong', 'Pililla', 'Rodriguez', 'San Mateo', 'Tanay', 'Taytay', 'Teresa', 'Other'],
-            'Other' => ['Other'],
-        ];
+        //reset dependent fields when changes
+        $this->province = $this->provinceOptions[$value] ?? '';
+        $this->municipality_code = '';
+        $this->municipality = '';
+        $this->barangay_code = '';
+        $this->barangay = '';
+        $this->municipalityOptions = ['' => 'Select Municipality'];
+        $this->barangayOptions = ['' => 'Select Barangay'];
+
+        if ($value !== '') {
+            $this->loadMunicipalities($value);
+        }
+    }
+    public function updatedMunicipalityCode(string $value): void
+    {
+        // Reset barangay when municipality changes.
+        $this->municipality = $this->municipalityOptions[$value] ?? '';
+        $this->barangay = '';
+        $this->barangay_code = '';
+        $this->barangayOptions = ['' => 'Select Barangay'];
+
+        if ($value !== '') {
+            $this->loadBarangays($value);
+        }
+    }
+    public function updatedBarangayCode(string $value): void
+    {
+        $this->barangay = $this->barangayOptions[$value] ?? '';
     }
 
-    public function getProvinceOptions(): array
+    //private helper to find PSGC code by name from options list (used when pre-filling form from existing user data)
+    // Returns the code if found, or empty string if not found.
+    // load provinces/municipalities/barangays from PSGC API and find the code that matches the given name.
+    private function loadProvinces(): void
     {
-        return [
-            '' => 'Select Province',
-            'Abra' => 'Abra',
-            'Bulacan' => 'Bulacan',
-            'Cavite' => 'Cavite',
-            'Laguna' => 'Laguna',
-            'Metro Manila' => 'Metro Manila',
-            'Pampanga' => 'Pampanga',
-            'Rizal' => 'Rizal',
-            'Other' => 'Other',
-        ];
+        $rows = $this->psgcGet('provinces/');
+        $options = ['' => 'Select Province'];
+        foreach ($rows as $row) {
+            if (isset($row['code'], $row['name'])) {
+                $options[(string) $row['code']] = (string) $row['name'];
+            }
+            $this->provinceOptions = $options;
+        }
     }
 
-    /** Municipalities for the currently selected province (cascading). */
-    public function getMunicipalityOptions(): array
+
+    private function loadMunicipalities(string $provinceCode): void
     {
-        $provinces = static::getProvinceMunicipalities();
+        $rows = $this->psgcGet("provinces/{$provinceCode}/cities-municipalities/");
         $options = ['' => 'Select Municipality'];
 
-        if ($this->province !== '' && isset($provinces[$this->province])) {
-            foreach ($provinces[$this->province] as $mun) {
-                $options[$mun] = $mun;
+        foreach ($rows as $row) {
+            if (isset($row['code'], $row['name'])) {
+                $options[(string) $row['code']] = (string) $row['name'];
             }
         }
 
-        return $options;
+        $this->municipalityOptions = $options;
     }
 
-    public function updatedProvince(): void
+    private function loadBarangays(string $municipalityCode): void
     {
-        $municipalities = static::getProvinceMunicipalities();
-        $allowed = $this->province !== '' && isset($municipalities[$this->province])
-            ? $municipalities[$this->province]
-            : [];
-        if ($this->municipality !== '' && ! in_array($this->municipality, $allowed, true)) {
-            $this->municipality = '';
+        $rows = $this->psgcGet("cities-municipalities/{$municipalityCode}/barangays/");
+        $options = ['' => 'Select Barangay'];
+
+        foreach ($rows as $row) {
+            if (isset($row['code'], $row['name'])) {
+                $options[(string) $row['code']] = (string) $row['name'];
+            }
+        }
+
+        $this->barangayOptions = $options;
+    }
+
+    // get the PSGC code for a given name from the options list, or return empty string if not found.
+    private function psgcGet(string $path): array
+    {
+        try {
+            // PSGC sometimes returns text/html content-type, so parse JSON body safely.
+            $response = Http::timeout(15)
+                ->retry(2, 250)
+                ->get('https://psgc.gitlab.io/api/' . ltrim($path, '/'));
+
+            if (!$response->successful()) {
+                $this->locationLoadError = 'Unable to load location data from PSGC.';
+                return [];
+            }
+
+            $data = $response->json();
+            if (!is_array($data)) {
+                $decoded = json_decode($response->body(), true);
+                $data = is_array($decoded) ? $decoded : [];
+            }
+
+            $this->locationLoadError = null;
+
+            /** @var array<int, array<string, mixed>> $data */
+            return $data;
+        } catch (\Throwable $e) {
+            report($e);
+            $this->locationLoadError = 'Unable to load location data from PSGC.';
+            return [];
         }
     }
+    /**
+     * @param array<string, string> $options
+     */
+    private function findCodeByName(array $options, string $name): string
+    {
+        foreach ($options as $code => $label) {
+            if ($code !== '' && strcasecmp($label, $name) === 0) {
+                return $code;
+            }
+        }
 
+        return '';
+    }
     public function render()
     {
         return view('livewire.auth.set-up-profile', [
-            'provinceOptions' => $this->getProvinceOptions(),
-            'municipalityOptions' => $this->getMunicipalityOptions(),
+            'provinceOptions' => $this->provinceOptions,
+            'municipalityOptions' => $this->municipalityOptions,
+            'barangayOptions' => $this->barangayOptions,
+            'locationLoadError' => $this->locationLoadError,
         ]);
     }
 }

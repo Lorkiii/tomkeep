@@ -36,12 +36,12 @@
                     <dt class="text-xs font-medium uppercase tracking-wide text-slate-500">Address</dt>
                     <dd class="mt-1 text-slate-700">
                         @php
+                            // Show address using new PSGC-backed structure, with fallback keys for old records.
                             $parts = array_filter([
                                 $addr['province'] ?? $addr['state_province'] ?? '',
                                 $addr['municipality'] ?? $addr['city'] ?? '',
-                                $addr['street'] ?? $addr['street_address'] ?? '',
-                                $addr['house_number'] ?? $addr['street_address_line_2'] ?? '',
-                                $addr['postal_code'] ?? '',
+                                $addr['barangay'] ?? '',
+                                $addr['street_house_number'] ?? trim(($addr['street'] ?? '') . ' ' . ($addr['house_number'] ?? '')),
                             ]);
                         @endphp
                         {{ implode(', ', $parts) ?: '—' }}

@@ -1,3 +1,4 @@
+{{-- Dashboard shell with sidebar navigation and authenticated user context. --}}
 @props(['title' => 'Dashboard', 'active' => 'dashboard'])
 
 <!DOCTYPE html>
@@ -60,17 +61,5 @@
     </main>
 
     @livewireScripts
-    @isset($currentOjtUser)
-        <script>
-            (function() {
-                var user = @json(collect($currentOjtUser ?? [])->except('password')->all());
-                try {
-                    if (user && Object.keys(user).length) {
-                        localStorage.setItem('ojt_current_user', JSON.stringify(user));
-                    }
-                } catch (e) {}
-            })();
-        </script>
-    @endisset
 </body>
 </html>

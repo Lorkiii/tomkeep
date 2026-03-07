@@ -79,4 +79,3 @@
     </p>
 </x-ojt-card>
 
-<x-guest-footer />

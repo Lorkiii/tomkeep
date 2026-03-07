@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * Generates realistic user records for tests and local data generation.
  */
 class UserFactory extends Factory
 {
@@ -25,6 +26,7 @@ class UserFactory extends Factory
         $status = fake()->randomElement(['pending', 'approved', 'rejected']);
 
         return [
+            'username' => fake()->unique()->userName(),
             'first_name' => fake()->firstName(),
             'middle_name' => fake()->optional()->lastName(),
             'last_name' => fake()->lastName(),

@@ -23,6 +23,7 @@ Livewire.interceptRequest(({ request, onResponse, onSuccess, onError, onFailure 
 });
 ```
 
+
 ### Component-Scoped Interceptors
 
 ```blade
