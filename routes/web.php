@@ -24,6 +24,8 @@ Route::middleware('guest')->group(function (): void {
     Route::get('/signup', SignUp::class)->name('signup');
 });
 
+
+
 Route::get('/profile/setup', SetUpProfile::class)
     ->name('profile.setup')
     ->middleware('ojt.user');
