@@ -1,69 +1,131 @@
 {{-- Student dashboard: progress summary, computed stats, and activity logs. --}}
 <x-layouts.dashboard title="Dashboard" active="dashboard">
-    <div class="mb-6 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <span class="h-8 w-8 shrink-0 rounded-full bg-slate-300"></span>
-            <h1 class="text-xl font-semibold text-slate-800">OJT LOGS</h1>
+    {{-- Success notice shown after a Livewire attendance action finishes. --}}
+    @if(session('dashboard_notice'))
+        <div class="mb-6 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-700 shadow-[0_18px_40px_-30px_rgba(16,185,129,0.7)]">
+            {{ session('dashboard_notice') }}
+        </div>
+    @endif
+
+    {{-- Top heading row: brand on the left, greeting on the right. --}}
+    <div class="mb-6 flex items-start justify-between gap-4">
+        <div class="flex items-center gap-3 sm:gap-4">
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#cfdcf5] bg-white text-sm font-extrabold tracking-[0.18em] text-[#1e4fa3] shadow-sm sm:h-12 sm:w-12">OJ</span>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Internship Attendance</p>
+                <h1 class="text-2xl font-extrabold tracking-[0.14em] text-[#1e4fa3] sm:text-[2rem]">OJT LOGS</h1>
+            </div>
         </div>
         @if(isset($currentOjtUser) && $currentOjtUser)
-            <p class="text-sm font-medium text-slate-700">Howdy, {{ $currentOjtUser['first_name'] ?? 'User' }}!</p>
+            <p class="pt-2 text-right text-sm font-semibold text-[#1e4fa3] sm:text-base">Howdy, {{ $currentOjtUser['first_name'] ?? 'User' }}!</p>
         @endif
     </div>
 
-    <p class="mb-6 text-sm text-slate-600">Today is {{ now()->format('l, F j, Y') }}</p>
+    {{-- Date headline. This mirrors the reference layout. --}}
+    <p class="mb-6 text-xl font-bold text-[#214e9d] sm:text-3xl">Today is {{ now()->format('F j, Y') }}</p>
 
-    {{-- Your Progress card --}}
-    <section class="mb-6 rounded-lg border border-slate-200 bg-slate-100/80 p-4 shadow-sm">
-        <div class="mb-2 flex items-center justify-between">
-            <h2 class="text-base font-semibold text-slate-900">Your Progress</h2>
-            <span class="text-sm font-medium text-slate-700">{{ $progressPercent ?? 0 }}%</span>
-        </div>
-        <div class="mb-3 h-3 w-full overflow-hidden rounded-full bg-slate-200">
-            <div class="h-full rounded-full bg-amber-400 transition-all" style="width: {{ $progressPercent ?? 0 }}%"></div>
-        </div>
-        <div class="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-700">
-            <span>Remaining Hours: {{ $remainingHours ?? 0 }} h</span>
-            @if(isset($requiredHours) && $requiredHours > 0 && ($remainingHours ?? 0) > 0)
-                @php
-                    $daysLeft = (int) ceil(($remainingHours ?? 0) / 8);
-                    $estFinish = now()->addDays($daysLeft);
-                @endphp
-                <span>Est. Finish Date: {{ $estFinish->format('F j, Y') }}</span>
-            @else
-                <span>Est. Finish Date: —</span>
-            @endif
-        </div>
-    </section>
+    {{--
+        Top summary grid.
 
-    {{-- Summary cards (light gray) --}}
-    <div class="mb-8 grid gap-4 sm:grid-cols-3">
-        <div class="rounded-lg border border-slate-200 bg-slate-100/80 p-4 shadow-sm">
-            <p class="text-xs font-medium uppercase tracking-wide text-slate-500">This day</p>
-            <p class="mt-1 text-xl font-bold text-slate-900">{{ $hoursThisDay ?? 0 }} <span class="text-sm font-normal text-slate-600">HRS</span></p>
-        </div>
-        <div class="rounded-lg border border-slate-200 bg-slate-100/80 p-4 shadow-sm">
-            <p class="text-xs font-medium uppercase tracking-wide text-slate-500">This Week</p>
-            <p class="mt-1 text-xl font-bold text-slate-900">{{ $hoursThisWeek ?? 0 }} <span class="text-sm font-normal text-slate-600">HRS</span></p>
-        </div>
-        <div class="rounded-lg border border-slate-200 bg-slate-100/80 p-4 shadow-sm">
-            <p class="text-xs font-medium uppercase tracking-wide text-slate-500">This Month</p>
-            <p class="mt-1 text-xl font-bold text-slate-900">{{ $hoursThisMonth ?? 0 }} <span class="text-sm font-normal text-slate-600">HRS</span></p>
-        </div>
+        Left side:
+            progress card
+
+        Right side:
+            this day / week / month card
+    --}}
+    <div class="mb-8 grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.95fr)]">
+        {{-- Progress card. --}}
+        <section class="rounded-[1.75rem] border border-[#d7e2f5] bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(224,235,247,0.96))] p-5 shadow-[0_28px_60px_-38px_rgba(15,23,42,0.45)] sm:p-6">
+            <div class="mb-4 flex items-center justify-between gap-4">
+                <h2 class="text-xl font-bold text-[#1e4fa3]">Your Progress</h2>
+                <span class="rounded-full border border-[#cfdbf1] bg-white/80 px-3 py-1 text-sm font-bold text-[#1e4fa3]">{{ $progressPercent ?? 0 }}%</span>
+            </div>
+
+            {{--
+                Semantic progress element.
+                We style it in app.css so we don't need inline width rules here.
+            --}}
+            <progress class="dashboard-progress mb-5 h-3.5 w-full overflow-hidden rounded-full bg-white/90 shadow-inner" value="{{ $progressPercent ?? 0 }}" max="100">{{ $progressPercent ?? 0 }}%</progress>
+
+            <div class="grid gap-4 text-sm text-slate-600 sm:grid-cols-2">
+                {{-- Remaining required internship hours. --}}
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Remaining Hours</p>
+                    <p class="mt-2 text-3xl font-bold text-[#1e4fa3]">{{ $remainingHours ?? 0 }} h</p>
+                </div>
+
+                {{-- Estimated finish date, based on 8 hours per day. --}}
+                <div class="text-left sm:text-right">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Est. Finish Date</p>
+                    @if(isset($requiredHours) && $requiredHours > 0 && ($remainingHours ?? 0) > 0)
+                        @php
+                            // Very simple projection: remaining hours divided by 8-hour days.
+                            $daysLeft = (int) ceil(($remainingHours ?? 0) / 8);
+                            $estFinish = now()->addDays($daysLeft);
+                        @endphp
+                        <p class="mt-2 text-3xl font-bold text-[#1e4fa3]">{{ $estFinish->format('M j, Y') }}</p>
+                    @else
+                        <p class="mt-2 text-3xl font-bold text-[#1e4fa3]">Complete</p>
+                    @endif
+                </div>
+            </div>
+        </section>
+
+        {{-- Compact summary card for day/week/month totals. --}}
+        <section class="rounded-[1.75rem] border border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(244,244,246,0.96))] p-5 shadow-[0_28px_60px_-38px_rgba(15,23,42,0.45)] sm:p-6">
+            <div class="grid grid-cols-3 gap-4 text-center">
+                {{-- Hours worked today. --}}
+                <div class="rounded-[1.4rem] px-2 py-4">
+                    <p class="text-sm font-semibold text-[#1e4fa3]">This day</p>
+                    <p class="mt-2 text-5xl font-bold leading-none text-[#1e4fa3]">{{ $hoursThisDay ?? 0 }}</p>
+                    <p class="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#1e4fa3]">HRS</p>
+                </div>
+
+                {{-- Hours worked during the current week. --}}
+                <div class="rounded-[1.4rem] px-2 py-4">
+                    <p class="text-sm font-semibold text-[#1e4fa3]">This Week</p>
+                    <p class="mt-2 text-5xl font-bold leading-none text-[#1e4fa3]">{{ $hoursThisWeek ?? 0 }}</p>
+                    <p class="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#1e4fa3]">HRS</p>
+                </div>
+
+                {{-- Hours worked during the current month. --}}
+                <div class="rounded-[1.4rem] px-2 py-4">
+                    <p class="text-sm font-semibold text-[#1e4fa3]">This Month</p>
+                    <p class="mt-2 text-5xl font-bold leading-none text-[#1e4fa3]">{{ $hoursThisMonth ?? 0 }}</p>
+                    <p class="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#1e4fa3]">HRS</p>
+                </div>
+            </div>
+        </section>
     </div>
 
-    {{-- Activity Logs --}}
-    <section>
-        <h2 class="mb-3 text-lg font-semibold text-slate-900">Activity Logs</h2>
-        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+    {{--
+        Recent logs are intentionally daily-only.
+        Older records belong in the Monthly DTR page, not on the dashboard.
+    --}}
+    <section class="rounded-[1.9rem] border border-slate-200/80 bg-white/90 p-5 shadow-[0_30px_70px_-42px_rgba(15,23,42,0.45)] backdrop-blur sm:p-6">
+        <div class="mb-4 border-b border-[#f1c74a] pb-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-2xl font-bold text-[#1e4fa3]">Recent Logs</h2>
+                    <p class="mt-1 text-sm text-slate-500">Showing today's attendance records only. Older entries stay in My Monthly DTR.</p>
+                </div>
+                <a href="{{ route('monthly.dtr') }}" class="inline-flex rounded-full border border-[#d5e0f0] bg-[#f7f9fc] px-4 py-2 text-sm font-semibold text-[#1e4fa3] transition hover:border-[#1e4fa3] hover:bg-white">
+                    View Monthly DTR
+                </a>
+            </div>
+        </div>
+
+        {{-- Scrollable log list to protect the page layout when many entries exist. --}}
+        <div class="rounded-[1.5rem] border border-slate-200/70 bg-[#fbfbfc]">
             @if(!empty($activityLogs))
-                <ul class="divide-y divide-slate-100">
+                <ul class="max-h-[24rem] divide-y divide-slate-200 overflow-y-auto">
                     @foreach($activityLogs as $log)
-                        <li class="flex items-center justify-between px-4 py-3 text-sm text-slate-700">
-                            <span>
-                                {{ ($log['type'] ?? '') === 'time_out' ? 'Time-Out' : 'Time-In' }}
-                                {{ $log['label'] ?? 'Work on Office' }}
+                        {{-- Each row shows the action label and the recorded date/time. --}}
+                        <li class="grid gap-1 px-4 py-4 text-sm text-slate-700 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-4 sm:px-5">
+                            <span class="font-semibold text-[#1f4f9c]">
+                                {{ $log['label'] ?? 'Attendance Activity' }}
                             </span>
-                            <span class="text-slate-500">
+                            <span class="text-sm font-medium text-[#2f5fae] sm:text-right">
                                 @if(!empty($log['at']))
                                     @php
                                         try {
@@ -81,15 +143,18 @@
                     @endforeach
                 </ul>
             @else
-                <p class="px-4 py-8 text-center text-sm text-slate-500">No activity logs yet. Time-in when you start work to record your hours.</p>
+                {{-- Friendly empty state before the first action is recorded. --}}
+                <p class="px-4 py-10 text-center text-sm text-slate-500">No attendance logs for today yet. Use the action button to record your first entry.</p>
             @endif
         </div>
     </section>
 
-    <div class="mt-8 flex items-center justify-end gap-2">
-        <p class="text-xs text-slate-400">Copyright © {{ date('Y') }}. Powered by</p>
-        <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-500 shadow-sm hover:bg-slate-50" aria-label="Toggle theme">
-            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-        </button>
+    {{-- Footer area kept simple and low-contrast so it doesn't compete with content. --}}
+    <div class="mt-8 flex items-center justify-center gap-2 pb-14 text-center sm:justify-end">
+        <p class="text-sm text-slate-400">Copyright © {{ date('Y') }}. Powered by</p>
+        <span class="text-sm font-semibold text-[#1e4fa3]">OJT Logs</span>
     </div>
+
+    {{-- Floating attendance button rendered as its own Livewire component. --}}
+    <livewire:attendance.dashboard-quick-action />
 </x-layouts.dashboard>
