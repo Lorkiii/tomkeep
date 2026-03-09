@@ -4,24 +4,29 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Base authentication and identity schema used by the application.
 return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        // Users table 
+        // Core users table including auth fields and student profile metadata.
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('first_name', 30);
+            $table->string('username', 50)->nullable()->unique();
+            $table->string('first_name', 30)->nullable();
             $table->string('middle_name', 30)->nullable();
-            $table->string('last_name', 30);
-            $table->string('contact_number', 11);
-            $table->json('address');
-            $table->string('course',255);
-            $table->date('date_of_birth');
+            $table->string('last_name', 30)->nullable();
+            $table->string('gender', 20)->nullable();
+            $table->string('student_code', 20)->nullable()->unique();
+            $table->string('contact_number', 11)->nullable();
+            $table->json('address')->nullable();
+            $table->string('course',255)->nullable();
+            $table->date('date_of_birth')->nullable();
             $table->string('school_attended',255)->nullable();
             $table->unsignedInteger('number_of_hours')->default(0);
+            $table->boolean('profile_completed')->default(false);
             $table->string('email', 255)->unique();
             $table->string('password', 255);
             $table->enum('role', ['admin', 'student'])->default('student');

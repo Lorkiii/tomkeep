@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -6,6 +7,43 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    /*
+        Shared sans-serif stack for the whole app.
+        Manrope improves readability compared to the previous default stack.
+    */
+    --font-sans: 'Manrope', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+[x-cloak] {
+    /* Prevent Alpine-controlled elements from flashing before JS is ready. */
+    display: none !important;
+}
+
+body {
+    /* Use the Tailwind theme font stack as the page default. */
+    font-family: var(--font-sans);
+}
+
+.dashboard-progress {
+    /* Fallback color for browsers that use the element's color value. */
+    color: #f1c74a;
+}
+
+.dashboard-progress::-webkit-progress-bar {
+    /* Track styling for Chromium/Safari browsers. */
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 9999px;
+}
+
+.dashboard-progress::-webkit-progress-value {
+    /* Filled portion styling for Chromium/Safari browsers. */
+    background: linear-gradient(90deg, #f1c74a 0%, #f7e4a6 100%);
+    border-radius: 9999px;
+}
+
+.dashboard-progress::-moz-progress-bar {
+    /* Filled portion styling for Firefox. */
+    background: linear-gradient(90deg, #f1c74a 0%, #f7e4a6 100%);
+    border-radius: 9999px;
 }

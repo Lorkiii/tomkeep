@@ -26,7 +26,7 @@ return new class extends Migration
 
             $table->timestamps();
         });
-
+        
         $driver = DB::connection()->getDriverName();
 
         if (in_array($driver, ['mysql', 'mariadb'], true)) {
