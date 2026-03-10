@@ -1,14 +1,14 @@
 @props(['active' => 'dashboard', 'currentOjtUser' => null])
 
 @php
-    // Build a readable full name for the profile card.
+    // Build a readable display name from the available user fields.
     $userName = trim(collect([
         $currentOjtUser['first_name'] ?? '',
         $currentOjtUser['middle_name'] ?? '',
         $currentOjtUser['last_name'] ?? '',
     ])->filter()->implode(' '));
 
-    // Use initials as a lightweight avatar fallback.
+    // Create a lightweight avatar fallback from the user's initials.
     $initials = collect(explode(' ', $userName ?: 'OJT User'))
         ->filter()
         ->take(2)
@@ -16,24 +16,15 @@
         ->implode('');
 @endphp
 
-{{--
-    Reusable dashboard sidebar.
-
-    Why extract this from the layout?
-    - The layout becomes easier to read.
-    - Desktop and mobile can share the same navigation markup.
-    - Future changes to nav links only happen in one file.
---}}
 <aside class="flex h-full flex-col overflow-hidden rounded-[2rem] border border-white/60 bg-[linear-gradient(180deg,#1f4f9c_0%,#173d79_100%)] text-white shadow-[0_30px_80px_-40px_rgba(15,23,42,0.75)]">
-    {{-- Top brand row with close/collapse controls. --}}
+    {{-- Brand/header area with desktop collapse and mobile close controls. --}}
     <div class="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-5 lg:px-6">
         <div class="flex items-center gap-3 overflow-hidden">
-            {{-- Small brand mark. --}}
             <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/30 bg-white/10 text-sm font-extrabold tracking-[0.28em] text-white">
                 OJ
             </div>
 
-            {{-- Text label is hidden when the desktop sidebar is collapsed. --}}
+            {{-- The brand text hides in collapsed mode so the compact sidebar stays clean. --}}
             <div x-show="!sidebarCollapsed" x-transition.opacity.duration.200ms class="min-w-0">
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">Attendance</p>
                 <p class="truncate text-lg font-bold tracking-[0.18em] text-white">OJT LOGS</p>
@@ -53,7 +44,7 @@
                 </svg>
             </button>
 
-            {{-- Desktop collapse button. --}}
+            {{-- Desktop collapse button toggles the narrow sidebar state. --}}
             <button
                 type="button"
                 class="hidden h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 lg:inline-flex"
@@ -67,17 +58,16 @@
         </div>
     </div>
 
-    {{-- Scrollable body keeps navigation usable on short screens. --}}
+    {{-- Scrollable content area: profile card, nav links, then logout button. --}}
     <div class="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-6 lg:px-5">
-        {{-- Profile summary card. --}}
+        {{-- Small user summary card near the top of the sidebar. --}}
         <section class="rounded-[1.6rem] border border-white/15 bg-white/8 p-4 backdrop-blur-sm">
             <div class="flex items-center gap-4" x-bind:class="sidebarCollapsed ? 'justify-center' : ''">
-                {{-- Initial-based avatar. --}}
                 <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-white/40 bg-white/12 text-lg font-bold text-white shadow-inner shadow-white/10">
                     {{ $initials ?: 'OU' }}
                 </div>
 
-                {{-- User details disappear in collapsed mode to save width. --}}
+                {{-- Email and name are hidden when the sidebar is collapsed. --}}
                 <div x-show="!sidebarCollapsed" x-transition.opacity.duration.200ms class="min-w-0">
                     <p class="truncate text-base font-semibold text-white">{{ $userName ?: 'OJT User' }}</p>
                     <p class="mt-1 truncate text-sm text-white/75">{{ $currentOjtUser['email'] ?? 'No email available' }}</p>
@@ -85,7 +75,7 @@
             </div>
         </section>
 
-        {{-- Navigation links are defined in a local array for easy maintenance. --}}
+        {{-- Navigation items are stored in one array so changes happen in one place only. --}}
         <nav class="flex-1 space-y-2">
             @php
                 $items = [
@@ -97,10 +87,7 @@
             @endphp
 
             @foreach($items as $item)
-                {{--
-                    Active item gets the gold highlight.
-                    In collapsed mode we keep only the bullet marker visible.
-                --}}
+                {{-- Active link gets a highlighted style based on the current page key. --}}
                 <a
                     href="{{ $item['route'] }}"
                     class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition duration-200 {{ $active === $item['key'] ? 'bg-[#f2c84a] text-[#173d79] shadow-[0_18px_38px_-26px_rgba(242,200,74,0.95)]' : 'text-white/82 hover:bg-white/10 hover:text-white' }}"
@@ -112,7 +99,7 @@
             @endforeach
         </nav>
 
-        {{-- Logout stays at the bottom of the sidebar. --}}
+        {{-- Shared logout form used by both student and admin experiences. --}}
         <form action="{{ route('logout') }}" method="POST">
             @csrf
             <button

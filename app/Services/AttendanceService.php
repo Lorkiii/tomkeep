@@ -48,7 +48,7 @@ class AttendanceService
             }
 
             $date = now()->toDateString();
-            $time = $occurredAt ?? now()->format('H:i:s');
+            $time = $occurredAt ?? now()->format('h:i:s');
 
             $record = DailyTimeRecord::query()
                 ->where('user_id', $userId)

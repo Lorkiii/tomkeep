@@ -1,7 +1,6 @@
-<x-layouts.dashboard title="Terms and Conditions" active="terms">
+<x-student.layouts.dashboard title="Terms and Conditions" active="terms">
     <div class="min-h-[calc(100vh-8rem)] rounded-2xl py-8" style="background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);">
         <div class="mx-auto flex max-w-2xl flex-col items-center px-4">
-            {{-- Above card: white circle + OJT LOGS --}}
             <div class="mb-4 flex flex-col items-center">
                 <div class="h-14 w-14 shrink-0 rounded-full border border-slate-200 bg-white shadow-sm sm:h-16 sm:w-16"></div>
                 <h1 class="mt-3 text-xl font-bold uppercase tracking-wide sm:text-2xl" style="color: #134991;">OJT LOGS</h1>
@@ -51,4 +50,4 @@
             <svg class="h-2.5 w-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
         </span>
     </footer>
-</x-layouts.dashboard>
+</x-student.layouts.dashboard>

@@ -1,4 +1,4 @@
-<x-layouts.dashboard title="My Monthly DTR" active="dtr">
+<x-student.layouts.dashboard title="My Monthly DTR" active="dtr">
     <div class="mb-6 flex items-center justify-between">
         <div class="flex items-center gap-2">
             <span class="h-8 w-8 shrink-0 rounded-full bg-slate-300"></span>
@@ -18,9 +18,16 @@
                 <span class="py-2 font-medium text-slate-500">{{ $day }}</span>
             @endforeach
             @php
+                // Current month being displayed in the calendar.
                 $month = now();
+
+                // Carbon::SUNDAY tells startOfWeek which weekday should be treated as the first day.
+                // That is why this line uses \Carbon\Carbon::SUNDAY.
                 $firstDay = $month->copy()->startOfMonth()->startOfWeek(\Carbon\Carbon::SUNDAY);
-                $dayOfWeek = $month->copy()->startOfMonth()->dayOfWeek; // 0 = Sunday
+
+                // dayOfWeek returns 0 for Sunday through 6 for Saturday.
+                // We use that number to print leading empty cells before day 1.
+                $dayOfWeek = $month->copy()->startOfMonth()->dayOfWeek;
             @endphp
             @for($i = 0; $i < $dayOfWeek; $i++)
                 <span class="py-2 text-slate-300">—</span>
@@ -44,4 +51,4 @@
             <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
         </button>
     </div>
-</x-layouts.dashboard>
+</x-student.layouts.dashboard>
