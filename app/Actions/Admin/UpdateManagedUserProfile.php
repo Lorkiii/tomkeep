@@ -49,6 +49,7 @@ class UpdateManagedUserProfile
         return $managedUser->only([
             'username',
             'email',
+            'position',
             'first_name',
             'middle_name',
             'last_name',

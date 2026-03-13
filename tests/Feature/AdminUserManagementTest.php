@@ -43,6 +43,7 @@ class AdminUserManagementTest extends TestCase
             'username' => 'updated.student',
             'email' => 'updated-student@mail.com',
             'role' => 'student',
+            'position' => 'Student Intern',
             'first_name' => 'Updated',
             'middle_name' => 'Profile',
             'last_name' => 'Student',
@@ -67,6 +68,7 @@ class AdminUserManagementTest extends TestCase
 
         $this->assertSame('updated.student', $student->username);
         $this->assertSame('updated-student@mail.com', $student->email);
+        $this->assertSame('Student Intern', $student->position);
         $this->assertSame('Updated', $student->first_name);
         $this->assertSame('Profile', $student->middle_name);
         $this->assertSame('Student', $student->last_name);

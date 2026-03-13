@@ -51,8 +51,8 @@ class AttendanceActionState
             return $this->makeState(
                 action: 'time_in',
                 label: 'Time In',
-                description: 'Start your work day and create today\'s attendance record.',
-                confirmText: 'Record your morning time-in now?',
+                description: 'Capture your current GPS location and start today\'s attendance record.',
+                confirmText: 'Record your morning time-in using your current location now?',
                 confirmationTitle: 'Morning Time-In Confirmation',
                 successTitle: 'Time-In Success!',
                 successDescription: 'Your morning time-in has been recorded successfully.',
@@ -66,8 +66,8 @@ class AttendanceActionState
             return $this->makeState(
                 action: 'lunch_out',
                 label: 'Lunch Out',
-                description: 'Mark the start of your lunch break before stepping away.',
-                confirmText: 'Record your lunch-out now?',
+                description: 'Capture your current GPS location before starting your lunch break.',
+                confirmText: 'Record your lunch-out using your current location now?',
                 confirmationTitle: 'Lunch-Out Confirmation',
                 successTitle: 'Lunch-Out Success!',
                 successDescription: 'Your lunch-out time has been recorded successfully.',
@@ -81,8 +81,8 @@ class AttendanceActionState
             return $this->makeState(
                 action: 'lunch_in',
                 label: 'Lunch In',
-                description: 'Resume your work session after lunch.',
-                confirmText: 'Record your lunch-in now?',
+                description: 'Capture your current GPS location and resume your work session after lunch.',
+                confirmText: 'Record your lunch-in using your current location now?',
                 confirmationTitle: 'Afternoon Time-In Confirmation',
                 successTitle: 'Time-In Success!',
                 successDescription: 'Your afternoon time-in has been recorded successfully.',
@@ -96,8 +96,8 @@ class AttendanceActionState
             return $this->makeState(
                 action: 'time_out',
                 label: 'Time Out',
-                description: 'Close out your day once your internship work is finished.',
-                confirmText: 'Record your time-out for today?',
+                description: 'Capture your current GPS location and close out your internship day.',
+                confirmText: 'Record your time-out for today using your current location?',
                 confirmationTitle: 'Afternoon Time-Out Confirmation',
                 successTitle: 'Time-Out Success!',
                 successDescription: 'Your time-out for today has been recorded successfully.',

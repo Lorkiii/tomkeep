@@ -42,9 +42,65 @@
         Mobile:
             shows only the round action button to save space
     --}}
-    <div class="fixed bottom-5 right-5 z-40 sm:bottom-8 sm:right-8 lg:bottom-10 lg:right-10" x-data>
-        {{-- Desktop helper panel. Hidden on smaller screens. --}}
-        <div class="mb-3 hidden max-w-72 rounded-3xl border px-4 py-4 shadow-[0_28px_55px_-35px_rgba(15,23,42,0.7)] lg:block {{ $styles['panel'] }}">
+    <div
+        class="fixed bottom-5 right-5 z-40 sm:bottom-8 sm:right-8 lg:bottom-10 lg:right-10"
+        x-data="{
+            locating: false,
+            captureCurrentLocation() {
+                if (this.locating) {
+                    return;
+                }
+
+                if (! navigator.geolocation) {
+                    this.reportFailure('This device does not support GPS location. Please use a device with location access enabled.');
+
+                    return;
+                }
+
+                this.locating = true;
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        $wire.captureLocation(position.coords.latitude, position.coords.longitude)
+                            .finally(() => {
+                                this.locating = false;
+                            });
+                    },
+                    (error) => {
+                        this.reportFailure(this.locationMessage(error));
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0,
+                    }
+                );
+            },
+            reportFailure(message) {
+                $wire.locationFailed(message)
+                    .finally(() => {
+                        this.locating = false;
+                    });
+            },
+            locationMessage(error) {
+                if (error?.code === 1) {
+                    return 'Location access was denied. Please allow GPS access and try again.';
+                }
+
+                if (error?.code === 2) {
+                    return 'Your location is currently unavailable. Move to an area with a stronger signal and try again.';
+                }
+
+                if (error?.code === 3) {
+                    return 'Reading your current location took too long. Please try again.';
+                }
+
+                return 'We could not read your current location. Please allow location access and try again.';
+            }
+        }"
+    >
+        {{-- The helper panel keeps the new two-step flow readable on both mobile and desktop. --}}
+        <div class="mb-3 w-[min(20rem,calc(100vw-2.5rem))] rounded-3xl border px-4 py-4 shadow-[0_28px_55px_-35px_rgba(15,23,42,0.7)] {{ $styles['panel'] }}">
             <div class="flex items-start justify-between gap-3">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Attendance Action</p>
@@ -55,6 +111,31 @@
                     {{ ($state['isComplete'] ?? false) ? 'Complete' : 'Ready' }}
                 </span>
             </div>
+
+            @if(! ($state['isComplete'] ?? false))
+                <div class="mt-4 rounded-2xl border border-[#d7e2f5] bg-white/70 px-3 py-3 text-sm text-slate-600">
+                    <p class="font-semibold text-[#1e4fa3]">How to log attendance</p>
+                    <p class="mt-2">Step 1: Read your current GPS location.</p>
+                    <p class="mt-1">Step 2: Use {{ strtolower($state['label'] ?? 'attendance') }} after GPS is ready.</p>
+                </div>
+
+                <div class="mt-3 rounded-2xl border border-[#d7e2f5] bg-[#f7f9fc] px-3 py-3 text-sm text-slate-600">
+                    <p class="font-semibold text-[#1e4fa3]">WFH timeout rule</p>
+                    <p class="mt-2">If your day is classified as WFH, time out must stay within {{ $wfhAnchorLimitMeters }} meters of your original time-in location.</p>
+                </div>
+
+                @if($capturedLatitude !== null && $capturedLongitude !== null)
+                    <div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-700">
+                        <p class="font-semibold">GPS is ready for this attendance action.</p>
+                        <p class="mt-1">Captured at {{ $capturedLocationLabel ?? 'just now' }}. You can now continue with {{ strtolower($state['label'] ?? 'attendance') }}.</p>
+                    </div>
+                @else
+                    <div class="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-700">
+                        <p class="font-semibold">GPS has not been read yet.</p>
+                        <p class="mt-1">Read your location first before the attendance action becomes available.</p>
+                    </div>
+                @endif
+            @endif
 
             {{-- Livewire validation or business-rule error. --}}
             @error('attendance')
@@ -71,32 +152,52 @@
                 </svg>
             </div>
         @else
-            <button
-                type="button"
-                class="group flex h-18 w-18 items-center justify-center rounded-full border border-white/70 transition duration-200 sm:h-20 sm:w-20 {{ $styles['button'] }}"
-                wire:click="openConfirmation"
-                wire:loading.attr="disabled"
-                wire:target="openConfirmation"
-                aria-label="{{ $state['label'] ?? 'Record attendance' }}"
-                title="{{ $state['label'] ?? 'Record attendance' }}"
-            >
-                <span class="sr-only">{{ $state['label'] ?? 'Record attendance' }}</span>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                <button
+                    type="button"
+                    class="inline-flex items-center justify-center gap-2 rounded-full border border-[#d5e0f0] bg-white px-4 py-3 text-sm font-semibold text-[#1e4fa3] shadow-[0_18px_35px_-24px_rgba(15,23,42,0.55)] transition hover:border-[#1e4fa3] hover:bg-[#f7f9fc]"
+                    x-on:click="captureCurrentLocation()"
+                    x-bind:disabled="locating"
+                    wire:loading.attr="disabled"
+                    wire:target="captureLocation,locationFailed"
+                >
+                    <span x-show="!locating" wire:loading.remove wire:target="captureLocation,locationFailed">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v3" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v3" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h3" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12h3" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+                        </svg>
+                    </span>
+                    <svg x-cloak x-show="locating" class="h-5 w-5 animate-spin text-current" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"></path>
+                    </svg>
+                    <span x-text="locating ? 'Reading GPS...' : 'Read Current GPS'"></span>
+                </button>
 
-                {{-- Static icon shown when the component is idle. --}}
-                <span wire:loading.remove wire:target="openConfirmation,mark">
+                <button
+                    type="button"
+                    class="group inline-flex items-center justify-center gap-2 rounded-full border border-white/70 px-4 py-3 text-sm font-semibold transition duration-200 {{ $styles['button'] }} {{ $capturedLatitude === null || $capturedLongitude === null ? 'cursor-not-allowed opacity-50' : '' }}"
+                    wire:click="openConfirmation"
+                    @disabled($capturedLatitude === null || $capturedLongitude === null)
+                    wire:loading.attr="disabled"
+                    wire:target="openConfirmation,mark"
+                    aria-label="{{ $state['label'] ?? 'Record attendance' }}"
+                    title="{{ $state['label'] ?? 'Record attendance' }}"
+                >
                     @switch($state['icon'] ?? 'sunrise')
-                        {{-- Lunch out icon. --}}
                         @case('lunch-out')
-                            <svg class="h-9 w-9 sm:h-10 sm:w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 4v8" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v8" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 12v8" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 4c1.657 0 3 1.79 3 4s-1.343 4-3 4V4Z" />
                             </svg>
                             @break
-                        {{-- Lunch in icon. --}}
                         @case('lunch-in')
-                            <svg class="h-9 w-9 sm:h-10 sm:w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 4v8" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v8" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 12v8" />
@@ -105,32 +206,27 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 9l3 3-3 3" />
                             </svg>
                             @break
-                        {{-- End-of-day icon. --}}
                         @case('sunset')
-                            <svg class="h-9 w-9 sm:h-10 sm:w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16h16" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a5 5 0 0 1 10 0" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v5" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 20h14" />
                             </svg>
                             @break
-                        {{-- Default morning time-in icon. --}}
                         @default
-                            <svg class="h-9 w-9 sm:h-10 sm:w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16h16" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a5 5 0 0 1 10 0" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v5" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 8l4-4 4 4" />
                             </svg>
                     @endswitch
-                </span>
 
-                {{-- Spinner shown while Livewire is submitting the action. --}}
-                <svg wire:loading wire:target="openConfirmation,mark" class="h-7 w-7 animate-spin text-current" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"></path>
-                </svg>
-            </button>
+                    <span wire:loading.remove wire:target="openConfirmation,mark">{{ $state['label'] ?? 'Log Attendance' }}</span>
+                    <span wire:loading wire:target="openConfirmation,mark">Please wait...</span>
+                </button>
+            </div>
         @endif
     </div>
 
@@ -148,6 +244,9 @@
 
         <p class="font-medium text-[#234880]">{{ $state['confirmText'] ?? 'Confirm this attendance action?' }}</p>
         <p class="mt-2 text-slate-600">Kindly press confirm to record your {{ strtolower($state['label'] ?? 'attendance') }} entry.</p>
+        @if($pendingLatitude !== null && $pendingLongitude !== null)
+            <p class="mt-3 rounded-2xl border border-[#d7e2f5] bg-[#f7f9fc] px-3 py-2 text-sm text-[#1e4fa3]">Current GPS location was captured successfully and will be attached to this attendance log.</p>
+        @endif
         @if($actionTimeLabel)
             <p class="mt-3 border-t border-slate-200 pt-3 text-sm font-semibold text-slate-500">Recorded time: {{ $actionTimeLabel }}</p>
         @endif
@@ -173,6 +272,34 @@
             >
                 <span wire:loading.remove wire:target="mark">Confirm</span>
                 <span wire:loading wire:target="mark">Saving...</span>
+            </button>
+        </x-slot:actions>
+        </x-ui.modal>
+    @endif
+
+    {{-- Friendly modal shown when browser location cannot be captured. --}}
+    @if($showLocationErrorModal)
+        <x-ui.modal title="Location Required" max-width="max-w-md">
+        <x-slot:icon>
+            <div class="flex h-12 w-12 items-center justify-center rounded-full border border-amber-200 bg-amber-50 text-amber-600">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4Z" />
+                </svg>
+            </div>
+        </x-slot:icon>
+
+        <p class="font-medium text-[#234880]">Attendance needs your current GPS location first.</p>
+        <p class="mt-2 text-slate-600">{{ $locationErrorMessage }}</p>
+
+        <x-slot:actions>
+            <button
+                type="button"
+                wire:click="closeLocationError"
+                class="w-full rounded-xl bg-[#1e4fa3] px-4 py-2.5 font-medium text-white shadow transition hover:bg-[#173f84]"
+            >
+                Try Again
             </button>
         </x-slot:actions>
         </x-ui.modal>

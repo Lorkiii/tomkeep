@@ -10,6 +10,7 @@ class Site extends Model
         'company_name',
         'address',
         'allowed_radius_m',
+        'enforce_geofence',
         'location',
         'is_active',
     ];
@@ -19,6 +20,7 @@ class Site extends Model
         return [
             'address' => 'array',
             'allowed_radius_m' => 'integer',
+            'enforce_geofence' => 'boolean',
             'is_active' => 'boolean',
         ];
     }

@@ -20,6 +20,8 @@ class AttendanceController extends Controller
             'user_id' => ['required', 'integer', 'exists:users,id'],
             'action' => ['required', Rule::in(AttendanceService::allowedActions())],
             'occurred_at' => ['nullable', 'date_format:H:i:s'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'actor_user_id' => ['nullable', 'integer', 'exists:users,id'],
         ]);
 
@@ -28,6 +30,8 @@ class AttendanceController extends Controller
                 userId: $validated['user_id'],
                 action: $validated['action'],
                 occurredAt: $validated['occurred_at'] ?? null,
+                latitude: isset($validated['latitude']) ? (float) $validated['latitude'] : null,
+                longitude: isset($validated['longitude']) ? (float) $validated['longitude'] : null,
                 actorUserId: $validated['actor_user_id'] ?? null,
                 ipAddress: $request->ip(),
                 userAgent: $request->userAgent(),

@@ -62,7 +62,14 @@
                 $items = [
                     ['key' => 'dashboard', 'label' => 'Admin Overview', 'route' => route('admin.dashboard')],
                     ['key' => 'approvals', 'label' => 'Student Approvals', 'route' => route('admin.student-approvals')],
+                    // Phase 5: Attendance Monitoring - observe today's records and view historical reports
+                    ['key' => 'attendance-today', 'label' => 'Today\'s Attendance', 'route' => route('admin.attendance.today')],
+                    ['key' => 'attendance-reports', 'label' => 'Attendance Reports', 'route' => route('admin.attendance.reports')],
+                    ['key' => 'attendance-settings', 'label' => 'Attendance Policy', 'route' => route('admin.settings.attendance.edit')],
+                    // Phase 4: User Management - manage admin and student accounts
                     ['key' => 'users', 'label' => 'User Management', 'route' => route('admin.users.index')],
+                    // Phase 6: Site Management - configure OJT sites and geofence settings
+                    ['key' => 'sites', 'label' => 'Site Management', 'route' => route('admin.sites.index')],
                 ];
             @endphp
 
