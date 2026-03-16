@@ -52,7 +52,7 @@
                 <p class="mt-1 text-sm text-slate-500">Priority signals based on the current approval queue.</p>
             </div>
 
-            <a href="{{ route('admin.student-approvals') }}"
+            <a href="{{ route('admin.student-approvals') }}" wire:navigate
                 class="inline-flex rounded-full border border-[#d5e0f0] bg-[#f7f9fc] px-4 py-2 text-sm font-semibold text-[#1e4fa3] transition hover:border-[#1e4fa3] hover:bg-white">
                 Open Approval Queue
             </a>
@@ -77,7 +77,7 @@
                     <h2 class="text-2xl font-bold text-[#1e4fa3]">Recent Approval Requests</h2>
                     <p class="mt-1 text-sm text-slate-500">Newest students waiting for admin action.</p>
                 </div>
-                <a href="{{ route('admin.student-approvals') }}" class="text-sm font-semibold text-[#1e4fa3] hover:text-[#173d79]">Review all</a>
+                <a href="{{ route('admin.student-approvals') }}" wire:navigate class="text-sm font-semibold text-[#1e4fa3] hover:text-[#173d79]">Review all</a>
             </div>
 
             <div class="mt-5 space-y-3">
@@ -94,7 +94,7 @@
                         </div>
                         <div class="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
                             <p>Submitted {{ $request['submitted_at'] ?? 'Unknown' }}</p>
-                            <a href="{{ route('admin.student-approvals') }}" class="font-semibold text-[#1e4fa3] hover:text-[#173d79]">Open in queue</a>
+                            <a href="{{ route('admin.student-approvals') }}" wire:navigate class="font-semibold text-[#1e4fa3] hover:text-[#173d79]">Open in queue</a>
                         </div>
                     </article>
                 @empty

@@ -8,7 +8,7 @@
             </p>
         </div>
 
-        <a href="{{ route('admin.attendance.reports') }}" class="inline-flex items-center justify-center rounded-full border border-[#d5e0f0] bg-white px-5 py-3 text-sm font-semibold text-[#1e4fa3] transition hover:border-[#1e4fa3]">
+        <a href="{{ route('admin.attendance.reports') }}" wire:navigate class="inline-flex items-center justify-center rounded-full border border-[#d5e0f0] bg-white px-5 py-3 text-sm font-semibold text-[#1e4fa3] transition hover:border-[#1e4fa3]">
             Open Reports
         </a>
     </div>

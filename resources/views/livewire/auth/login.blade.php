@@ -74,7 +74,7 @@
                     class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-12 pr-4 text-slate-800 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400" />
             </div>
             @error('username')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
 
@@ -108,7 +108,7 @@
                 </button>
             </div>
             @error('password')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
 

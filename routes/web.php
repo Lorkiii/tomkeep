@@ -143,6 +143,30 @@ Route::middleware(['ojt.user', 'admin'])->group(function (): void {
             ->with('admin_notice', 'Attendance policy updated successfully.');
     })->name('admin.settings.attendance.update');
 
+    Route::get('/admin/settings/system', function (Request $request) {
+        $user = $request->user();
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        return view('pages.admin.settings.system', [
+            'currentAdminUser' => $user->toArray(),
+        ]);
+    })->name('admin.settings.system');
+
+    Route::get('/admin/settings/profile', function (Request $request) {
+        $user = $request->user();
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        return view('pages.admin.settings.profile', [
+            'currentAdminUser' => $user->toArray(),
+        ]);
+    })->name('admin.settings.profile');
+
     // CSV export endpoint - streams filtered attendance records as downloadable file
     Route::get('/admin/attendance/reports/export', AttendanceReportExportController::class)
         ->name('admin.attendance.reports.export');
@@ -225,7 +249,7 @@ Route::middleware(['ojt.user', 'admin'])->group(function (): void {
             ->with('admin_notice', 'Site created successfully.');
     })->name('admin.sites.store');
 
-    Route::get('/admin/sites/{managedSite}/edit', function (Request $request, Site $managedSite, SiteLocationData $siteLocationData) {
+    Route::get('/admin/sites/{managedSite}/edit', function (Request $request, Site $managedSite, SiteLocationData $siteLocationData, AttendancePolicy $attendancePolicy) {
         $user = $request->user();
 
         if (! $user) {
@@ -236,8 +260,27 @@ Route::middleware(['ojt.user', 'admin'])->group(function (): void {
             'currentAdminUser' => $user->toArray(),
             'managedSite' => $managedSite,
             'siteCoordinates' => $siteLocationData->coordinatesFor($managedSite),
+            'wfhAnchorLimit' => $attendancePolicy->wfhAnchorLimitMeters(),
         ]);
     })->name('admin.sites.edit');
+
+    Route::patch('/admin/sites/{managedSite}/attendance-policy', function (Request $request, Site $managedSite, AttendancePolicy $attendancePolicy) {
+        $user = $request->user();
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        $validated = $request->validate([
+            'wfh_anchor_limit_m' => ['required', 'integer', 'min:1', 'max:5000'],
+        ]);
+
+        $attendancePolicy->updateWfhAnchorLimitMeters((int) $validated['wfh_anchor_limit_m'], $user);
+
+        return redirect()
+            ->route('admin.sites.edit', $managedSite)
+            ->with('admin_notice', 'Attendance policy updated successfully.');
+    })->name('admin.sites.attendance-policy.update');
 
     Route::patch('/admin/sites/{managedSite}', function (Request $request, Site $managedSite, UpdateManagedSite $updateManagedSite) {
         $user = $request->user();

@@ -39,6 +39,15 @@ class StudentApprovalTable extends Component
 
     public ?string $pendingStudentName = null;
 
+    public bool $showProfileModal = false;
+
+    /**
+     * Lightweight payload for the profile modal.
+     *
+     * @var array<string, mixed>|null
+     */
+    public ?array $profileStudent = null;
+
     protected $queryString = [
         'statusFilter' => ['except' => 'pending'],
         'search' => ['except' => ''],
@@ -133,6 +142,50 @@ class StudentApprovalTable extends Component
         $this->pendingStudentId = null;
         $this->pendingAction = null;
         $this->pendingStudentName = null;
+    }
+
+    /**
+     * Open the profile modal for a student in the queue.
+     */
+    public function openProfile(int $studentId): void
+    {
+        $student = User::query()
+            ->where('role', 'student')
+            ->find($studentId);
+
+        if (! $student) {
+            $this->setFeedback('error', 'The selected student could not be found.');
+
+            return;
+        }
+
+        $this->profileStudent = [
+            'id' => $student->id,
+            'name' => $this->displayName($student),
+            'email' => $student->email,
+            'username' => $student->username,
+            'status' => $student->status,
+            'profile_completed' => (bool) $student->profile_completed,
+            'student_code' => $student->student_code,
+            'contact_number' => $student->contact_number,
+            'gender' => $student->gender,
+            'date_of_birth' => optional($student->date_of_birth)->format('M j, Y'),
+            'school_attended' => $student->school_attended,
+            'course' => $student->course,
+            'number_of_hours' => $student->number_of_hours,
+            'address' => $student->address ?? [],
+            'created_at' => optional($student->created_at)->format('M j, Y g:i A'),
+            'approved_at' => optional($student->approved_at)->format('M j, Y g:i A'),
+            'admin_notes' => $student->admin_notes,
+        ];
+
+        $this->showProfileModal = true;
+    }
+
+    public function closeProfileModal(): void
+    {
+        $this->showProfileModal = false;
+        $this->profileStudent = null;
     }
 
     /**

@@ -53,7 +53,7 @@ class SiteManagementTable extends Component
             })
             ->latest()
             ->paginate(self::PER_PAGE);
-
+            
         return view('livewire.admin.site-management-table', [
             'sites' => $sites,
             'counts' => [

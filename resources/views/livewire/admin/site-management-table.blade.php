@@ -53,43 +53,43 @@
 
         <div class="mt-6 space-y-4 lg:hidden">
             @forelse($sites as $site)
-                @php
-                    // Address fragments stay optional because some sites may be created before full address details are known.
-                    $addressLabel = trim(collect([
-                        $site->address['street_address'] ?? null,
-                        $site->address['barangay'] ?? null,
-                        $site->address['municipality'] ?? null,
-                        $site->address['province'] ?? null,
-                    ])->filter()->implode(', '));
-                @endphp
-                <article wire:key="managed-site-card-{{ $site->id }}" class="rounded-[1.5rem] border border-slate-200 bg-[#fbfbfc] p-4 shadow-[0_20px_45px_-35px_rgba(15,23,42,0.35)]">
-                    <div class="flex flex-col gap-4">
-                        <div>
-                            <p class="text-base font-bold text-[#1e4fa3]">{{ $site->company_name }}</p>
-                            <p class="mt-1 text-sm text-slate-500">{{ $addressLabel !== '' ? $addressLabel : 'Address not yet provided' }}</p>
-                        </div>
-
-                        <div class="flex flex-wrap gap-2">
-                            <span class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] {{ $site->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600' }}">
-                                {{ $site->is_active ? 'Active' : 'Inactive' }}
-                            </span>
-                            <span class="rounded-full bg-[#e8f0ff] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#1e4fa3]">
-                                {{ $site->allowed_radius_m }} m radius
-                            </span>
-                        </div>
-
-                        <div class="grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-                            <p><span class="font-semibold text-slate-500">Created:</span> {{ optional($site->created_at)->format('M j, Y g:i A') ?: 'Unknown' }}</p>
-                            <p><span class="font-semibold text-slate-500">Updated:</span> {{ optional($site->updated_at)->format('M j, Y g:i A') ?: 'Unknown' }}</p>
-                        </div>
-
-                        <div class="flex justify-end">
-                            <a href="{{ route('admin.sites.edit', $site) }}" class="inline-flex items-center justify-center rounded-full border border-[#d5e0f0] bg-white px-4 py-2 text-sm font-semibold text-[#1e4fa3] transition hover:border-[#1e4fa3]">Manage</a>
-                        </div>
+            @php
+            // Address fragments stay optional because some sites may be created before full address details are known.
+            $addressLabel = trim(collect([
+            $site->address['street_address'] ?? null,
+            $site->address['barangay'] ?? null,
+            $site->address['municipality'] ?? null,
+            $site->address['province'] ?? null,
+            ])->filter()->implode(', '));
+            @endphp
+            <article wire:key="managed-site-card-{{ $site->id }}" class="rounded-[1.5rem] border border-slate-200 bg-[#fbfbfc] p-4 shadow-[0_20px_45px_-35px_rgba(15,23,42,0.35)]">
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <p class="text-base font-bold text-[#1e4fa3]">{{ $site->company_name }}</p>
+                        <p class="mt-1 text-sm text-slate-500">{{ $addressLabel !== '' ? $addressLabel : 'Address not yet provided' }}</p>
                     </div>
-                </article>
+
+                    <div class="flex flex-wrap gap-2">
+                        <span class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] {{ $site->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600' }}">
+                            {{ $site->is_active ? 'Active' : 'Inactive' }}
+                        </span>
+                        <span class="rounded-full bg-[#e8f0ff] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#1e4fa3]">
+                            {{ $site->allowed_radius_m }} m radius
+                        </span>
+                    </div>
+
+                    <div class="grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                        <p><span class="font-semibold text-slate-500">Created:</span> {{ optional($site->created_at)->format('M j, Y g:i A') ?: 'Unknown' }}</p>
+                        <p><span class="font-semibold text-slate-500">Updated:</span> {{ optional($site->updated_at)->format('M j, Y g:i A') ?: 'Unknown' }}</p>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <a href="{{ route('admin.sites.edit', $site) }}" wire:navigate class="inline-flex items-center justify-center rounded-full border border-[#d5e0f0] bg-white px-4 py-2 text-sm font-semibold text-[#1e4fa3] transition hover:border-[#1e4fa3]">Manage</a>
+                    </div>
+                </div>
+            </article>
             @empty
-                <div class="rounded-[1.5rem] border border-dashed border-[#d5e0f0] bg-[#f7f9fc] px-6 py-14 text-center text-sm text-slate-500">No sites matched the current filters.</div>
+            <div class="rounded-[1.5rem] border border-dashed border-[#d5e0f0] bg-[#f7f9fc] px-6 py-14 text-center text-sm text-slate-500">No sites matched the current filters.</div>
             @endforelse
         </div>
 
@@ -108,35 +108,35 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200 text-slate-600">
                         @forelse($sites as $site)
-                            @php
-                                $addressLabel = trim(collect([
-                                    $site->address['street_address'] ?? null,
-                                    $site->address['barangay'] ?? null,
-                                    $site->address['municipality'] ?? null,
-                                    $site->address['province'] ?? null,
-                                ])->filter()->implode(', '));
-                            @endphp
-                            <tr wire:key="managed-site-{{ $site->id }}">
-                                <td class="px-4 py-4 align-top">
-                                    <p class="font-semibold text-[#1e4fa3]">{{ $site->company_name }}</p>
-                                    <p class="mt-1 text-xs text-slate-400">Created {{ optional($site->created_at)->format('M j, Y') ?: 'Unknown' }}</p>
-                                </td>
-                                <td class="px-4 py-4 align-top text-slate-500">{{ $addressLabel !== '' ? $addressLabel : 'Address not yet provided' }}</td>
-                                <td class="px-4 py-4 align-top text-slate-500">{{ $site->allowed_radius_m }} meters</td>
-                                <td class="px-4 py-4 align-top">
-                                    <span class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] {{ $site->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600' }}">
-                                        {{ $site->is_active ? 'Active' : 'Inactive' }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-4 align-top text-slate-500">{{ optional($site->updated_at)->format('M j, Y g:i A') ?: 'Unknown' }}</td>
-                                <td class="px-4 py-4 align-top text-right">
-                                    <a href="{{ route('admin.sites.edit', $site) }}" class="inline-flex rounded-full border border-[#d5e0f0] bg-white px-3 py-2 text-xs font-semibold text-[#1e4fa3] transition hover:border-[#1e4fa3]">Manage</a>
-                                </td>
-                            </tr>
+                        @php
+                        $addressLabel = trim(collect([
+                        $site->address['street_address'] ?? null,
+                        $site->address['barangay'] ?? null,
+                        $site->address['municipality'] ?? null,
+                        $site->address['province'] ?? null,
+                        ])->filter()->implode(', '));
+                        @endphp
+                        <tr wire:key="managed-site-{{ $site->id }}">
+                            <td class="px-4 py-4 align-top">
+                                <p class="font-semibold text-[#1e4fa3]">{{ $site->company_name }}</p>
+                                <p class="mt-1 text-xs text-slate-400">Created {{ optional($site->created_at)->format('M j, Y') ?: 'Unknown' }}</p>
+                            </td>
+                            <td class="px-4 py-4 align-top text-slate-500">{{ $addressLabel !== '' ? $addressLabel : 'Address not yet provided' }}</td>
+                            <td class="px-4 py-4 align-top text-slate-500">{{ $site->allowed_radius_m }} meters</td>
+                            <td class="px-4 py-4 align-top">
+                                <span class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] {{ $site->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600' }}">
+                                    {{ $site->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-4 align-top text-slate-500">{{ optional($site->updated_at)->format('M j, Y g:i A') ?: 'Unknown' }}</td>
+                            <td class="px-4 py-4 align-top text-right">
+                                <a href="{{ route('admin.sites.edit', $site) }}" wire:navigate class="inline-flex rounded-full border border-[#d5e0f0] bg-white px-3 py-2 text-xs font-semibold text-[#1e4fa3] transition hover:border-[#1e4fa3]">Manage</a>
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-14 text-center text-sm text-slate-500">No sites matched the current filters.</td>
-                            </tr>
+                        <tr>
+                            <td colspan="6" class="px-6 py-14 text-center text-sm text-slate-500">No sites matched the current filters.</td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -144,10 +144,10 @@
         </div>
 
         @if($sites->hasPages())
-            <div class="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
-                <p class="text-center text-sm text-slate-500 sm:text-left">Showing {{ $sites->firstItem() }}-{{ $sites->lastItem() }} of {{ $sites->total() }} sites.</p>
-                {{ $sites->links() }}
-            </div>
+        <div class="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-center text-sm text-slate-500 sm:text-left">Showing {{ $sites->firstItem() }}-{{ $sites->lastItem() }} of {{ $sites->total() }} sites.</p>
+            {{ $sites->links() }}
+        </div>
         @endif
     </section>
 </div>
