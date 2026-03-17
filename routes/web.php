@@ -81,6 +81,18 @@ Route::middleware(['ojt.user', 'admin'])->group(function (): void {
         ]);
     })->name('admin.student-approvals');
 
+    Route::get('/admin/students', function (Request $request) {
+        $user = $request->user();
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        return view('pages.admin.students.index', [
+            'currentAdminUser' => $user->toArray(),
+        ]);
+    })->name('admin.students.index');
+
     // Phase 5: Admin Attendance Monitoring Routes
     // Today's attendance view - real-time observation of current day's attendance status
     Route::get('/admin/attendance/today', function (Request $request) {
@@ -226,6 +238,8 @@ Route::middleware(['ojt.user', 'admin'])->group(function (): void {
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'enforce_geofence' => ['nullable', 'boolean'],
+            'wfh_anchor_enforced' => ['nullable', 'boolean'],
+            'wfh_anchor_limit_m' => ['nullable', 'integer', 'min:1', 'max:5000'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
@@ -241,6 +255,8 @@ Route::middleware(['ojt.user', 'admin'])->group(function (): void {
             'latitude' => (float) $validated['latitude'],
             'longitude' => (float) $validated['longitude'],
             'enforce_geofence' => $request->boolean('enforce_geofence', true),
+            'wfh_anchor_enforced' => $request->boolean('wfh_anchor_enforced', true),
+            'wfh_anchor_limit_m' => $validated['wfh_anchor_limit_m'] ?? null,
             'is_active' => $request->boolean('is_active', true),
         ], $user);
 
@@ -249,7 +265,7 @@ Route::middleware(['ojt.user', 'admin'])->group(function (): void {
             ->with('admin_notice', 'Site created successfully.');
     })->name('admin.sites.store');
 
-    Route::get('/admin/sites/{managedSite}/edit', function (Request $request, Site $managedSite, SiteLocationData $siteLocationData, AttendancePolicy $attendancePolicy) {
+    Route::get('/admin/sites/{managedSite}/edit', function (Request $request, Site $managedSite, SiteLocationData $siteLocationData) {
         $user = $request->user();
 
         if (! $user) {
@@ -260,27 +276,8 @@ Route::middleware(['ojt.user', 'admin'])->group(function (): void {
             'currentAdminUser' => $user->toArray(),
             'managedSite' => $managedSite,
             'siteCoordinates' => $siteLocationData->coordinatesFor($managedSite),
-            'wfhAnchorLimit' => $attendancePolicy->wfhAnchorLimitMeters(),
         ]);
     })->name('admin.sites.edit');
-
-    Route::patch('/admin/sites/{managedSite}/attendance-policy', function (Request $request, Site $managedSite, AttendancePolicy $attendancePolicy) {
-        $user = $request->user();
-
-        if (! $user) {
-            return redirect()->route('login');
-        }
-
-        $validated = $request->validate([
-            'wfh_anchor_limit_m' => ['required', 'integer', 'min:1', 'max:5000'],
-        ]);
-
-        $attendancePolicy->updateWfhAnchorLimitMeters((int) $validated['wfh_anchor_limit_m'], $user);
-
-        return redirect()
-            ->route('admin.sites.edit', $managedSite)
-            ->with('admin_notice', 'Attendance policy updated successfully.');
-    })->name('admin.sites.attendance-policy.update');
 
     Route::patch('/admin/sites/{managedSite}', function (Request $request, Site $managedSite, UpdateManagedSite $updateManagedSite) {
         $user = $request->user();
@@ -299,6 +296,8 @@ Route::middleware(['ojt.user', 'admin'])->group(function (): void {
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'enforce_geofence' => ['nullable', 'boolean'],
+            'wfh_anchor_enforced' => ['nullable', 'boolean'],
+            'wfh_anchor_limit_m' => ['nullable', 'integer', 'min:1', 'max:5000'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
@@ -314,6 +313,8 @@ Route::middleware(['ojt.user', 'admin'])->group(function (): void {
             'latitude' => (float) $validated['latitude'],
             'longitude' => (float) $validated['longitude'],
             'enforce_geofence' => $request->boolean('enforce_geofence', true),
+            'wfh_anchor_enforced' => $request->boolean('wfh_anchor_enforced', true),
+            'wfh_anchor_limit_m' => $validated['wfh_anchor_limit_m'] ?? null,
             'is_active' => $request->boolean('is_active'),
         ], $user);
 

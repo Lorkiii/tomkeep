@@ -277,8 +277,6 @@ class DashboardQuickAction extends Component
 
     /**
      * Build the text shown inside the success modal.
-     *
-     * @return array<string, string>
      */
     private function buildSuccessState(string $action, array $completedActionState): array
     {

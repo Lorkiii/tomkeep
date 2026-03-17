@@ -44,7 +44,7 @@ $initials = collect(explode(' ', $adminName ?: 'Admin User'))
     <div
         x-data="{
             open: {
-                students: @js(in_array($active, ['approvals'], true)),
+                students: @js(in_array($active, ['approvals', 'students-profiles'], true)),
                 attendance: @js(in_array($active, ['attendance-today', 'attendance-reports'], true)),
                 administration: @js(in_array($active, ['users', 'sites'], true)),
                 settings: @js(in_array($active, ['settings-system', 'settings-profile'], true)),
@@ -80,11 +80,11 @@ $initials = collect(explode(' ', $adminName ?: 'Admin User'))
                     <button
                         type="button"
                         x-on:click="open.students = !open.students"
-                        class="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition duration-200 {{ in_array($active, ['approvals'], true) ? 'bg-white/10 text-white' : 'text-white/82 hover:bg-white/10 hover:text-white' }}"
+                        class="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition duration-200 {{ in_array($active, ['approvals', 'students-profiles'], true) ? 'bg-white/10 text-white' : 'text-white/82 hover:bg-white/10 hover:text-white' }}"
                         aria-expanded="false"
                         x-bind:aria-expanded="open.students">
                         <span class="flex items-center gap-3">
-                            <span class="h-2.5 w-2.5 shrink-0 rounded-full {{ in_array($active, ['approvals'], true) ? 'bg-[#f2c84a]' : 'bg-white/45' }}"></span>
+                            <span class="h-2.5 w-2.5 shrink-0 rounded-full {{ in_array($active, ['approvals', 'students-profiles'], true) ? 'bg-[#f2c84a]' : 'bg-white/45' }}"></span>
                             <span>Students</span>
                         </span>
                         <svg class="h-4 w-4 shrink-0 transition" x-bind:class="open.students ? 'rotate-90' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -99,6 +99,13 @@ $initials = collect(explode(' ', $adminName ?: 'Admin User'))
                             class="flex items-center gap-3 rounded-2xl px-4 py-2 text-sm font-semibold transition duration-200 {{ $active === 'approvals' ? 'bg-[#f2c84a] text-[#173d79]' : 'text-white/78 hover:bg-white/10 hover:text-white' }}">
                             <span class="h-2 w-2 shrink-0 rounded-full {{ $active === 'approvals' ? 'bg-[#173d79]' : 'bg-white/45' }}"></span>
                             <span>Student Approvals</span>
+                        </a>
+                        <a
+                            href="{{ route('admin.students.index') }}"
+                            wire:navigate
+                            class="flex items-center gap-3 rounded-2xl px-4 py-2 text-sm font-semibold transition duration-200 {{ $active === 'students-profiles' ? 'bg-[#f2c84a] text-[#173d79]' : 'text-white/78 hover:bg-white/10 hover:text-white' }}">
+                            <span class="h-2 w-2 shrink-0 rounded-full {{ $active === 'students-profiles' ? 'bg-[#173d79]' : 'bg-white/45' }}"></span>
+                            <span>Student Profiles</span>
                         </a>
                     </div>
                 </div>

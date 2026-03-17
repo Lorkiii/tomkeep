@@ -4,6 +4,8 @@
     $longitude = old('longitude', $siteCoordinates['longitude'] ?? '');
     $isActiveValue = old('is_active', isset($managedSite) ? (int) $managedSite->is_active : 1);
     $enforceGeofenceValue = old('enforce_geofence', isset($managedSite) ? (int) $managedSite->enforce_geofence : 1);
+    $wfhAnchorEnforcedValue = old('wfh_anchor_enforced', isset($managedSite) ? (int) ($managedSite->wfh_anchor_enforced ?? true) : 1);
+    $wfhAnchorLimitValue = old('wfh_anchor_limit_m', isset($managedSite) ? ($managedSite->wfh_anchor_limit_m ?? 20) : 20);
 @endphp
 
 @if($errors->any())
@@ -21,6 +23,8 @@
         municipality: @js((string) old('municipality', $siteAddress['municipality'] ?? '')),
         province: @js((string) old('province', $siteAddress['province'] ?? '')),
         geofenceEnabled: @js((string) $enforceGeofenceValue === '1'),
+        wfhAnchorEnforced: @js((string) $wfhAnchorEnforcedValue === '1'),
+        wfhAnchorLimit: @js((string) $wfhAnchorLimitValue),
         helperBusy: false,
         helperMessage: '',
         async useCurrentLocation() {
@@ -224,12 +228,70 @@
                 <p class="font-semibold text-[#1e4fa3]">Geofence Preview</p>
                 <p class="mt-2">
                     <span x-show="geofenceEnabled">Students inside this radius will be classified as on-site.</span>
-                    <span x-show="!geofenceEnabled">Attendance will be treated as WFH, and time-out must stay near the original time-in location.</span>
+                    <span x-show="!geofenceEnabled">Attendance will be treated as WFH. Location is still captured and stored on each attendance log.</span>
                 </p>
                 <p class="mt-2">Latitude <span x-text="latitude !== '' ? latitude : 'not set'"></span>, Longitude
                     <span x-text="longitude !== '' ? longitude : 'not set'"></span>, Radius
                     {{ old('allowed_radius_m', $managedSite?->allowed_radius_m ?? 100) }} meters.
                 </p>
+            </div>
+
+            {{-- Small hint so admins understand why WFH policy is hidden --}}
+            <div x-cloak x-show="geofenceEnabled" class="rounded-[1.4rem] border border-slate-200 bg-white/80 px-4 py-4 text-sm text-slate-600">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">WFH Rules (This Site)</p>
+                        <p class="mt-2 font-semibold text-[#1e4fa3]">Hidden while geofence is enabled</p>
+                        <p class="mt-2">Turn off geofence to review or change this site’s WFH anchor settings.</p>
+                    </div>
+                    <span class="inline-flex items-center rounded-full border border-[#d7e2f5] bg-[#f7f9fc] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#1e4fa3]">
+                        <span x-text="wfhAnchorEnforced ? `On · ${wfhAnchorLimit}m` : 'Off · Unlimited'"></span>
+                    </span>
+                </div>
+                <p class="mt-3 rounded-2xl border border-[#d7e2f5] bg-[#f7f9fc] px-3 py-2 text-sm text-[#1e4fa3]">
+                    Location is still tracked and saved on each attendance log.
+                </p>
+            </div>
+
+            {{-- WFH Anchor Policy (per-site) - shown only when geofence is disabled --}}
+            <div x-cloak x-show="!geofenceEnabled" class="rounded-[1.8rem] border border-[#d7e2f5] bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(224,235,247,0.96))] px-5 py-5 text-sm text-slate-700 shadow-[0_22px_55px_-38px_rgba(30,79,163,0.35)]">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">WFH Rules (This Site)</p>
+                        <p class="mt-2 text-base font-bold text-[#1e4fa3]">WFH Anchor Limit</p>
+                        <p class="mt-2 text-sm text-slate-600">
+                            When enabled, a student&apos;s WFH time-out must be recorded within the allowed meters of their original time-in location.
+                        </p>
+                        <p class="mt-2 text-sm text-slate-600">
+                            <span class="font-semibold text-[#1e4fa3]">Note:</span> Location is still tracked and saved even when this rule is turned off.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-4 space-y-4">
+                    <label class="flex items-start gap-3 rounded-[1.4rem] border border-slate-200 bg-white/70 px-4 py-4 text-sm text-slate-700">
+                        <input type="hidden" name="wfh_anchor_enforced" x-bind:value="wfhAnchorEnforced ? 1 : 0">
+                        <input type="checkbox" x-model="wfhAnchorEnforced" class="mt-1 h-4 w-4 rounded border-slate-300 text-[#1e4fa3] focus:ring-[#1e4fa3]">
+                        <span>
+                            <span class="block font-semibold text-[#1e4fa3]">Enforce WFH anchor limit</span>
+                            <span class="mt-1 block text-slate-500">Turn this off to allow WFH time-out from any location (no distance restriction).</span>
+                        </span>
+                    </label>
+
+                    <label class="block" x-bind:class="wfhAnchorEnforced ? '' : 'opacity-60'">
+                        <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Allowed Movement From Time-In Point (Meters)</span>
+                        <input
+                            name="wfh_anchor_limit_m"
+                            type="number"
+                            min="1"
+                            max="5000"
+                            x-model="wfhAnchorLimit"
+                            x-bind:disabled="!wfhAnchorEnforced"
+                            class="w-full rounded-2xl border border-[#d5e0f0] bg-[#f7f9fc] px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-[#1e4fa3] focus:bg-white disabled:cursor-not-allowed"
+                        >
+                        @error('wfh_anchor_limit_m') <p class="mt-2 text-sm text-rose-600">{{ $message }}</p> @enderror
+                    </label>
+                </div>
             </div>
 
             <label

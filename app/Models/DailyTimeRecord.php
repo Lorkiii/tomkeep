@@ -12,6 +12,7 @@ class DailyTimeRecord extends Model
 
     protected $fillable = [
         'user_id',
+        'site_id',
         'attendance_mode',
         'date',
         'time_in',
@@ -28,6 +29,7 @@ class DailyTimeRecord extends Model
     protected function casts(): array
     {
         return [
+            'site_id' => 'integer',
             'attendance_mode' => 'string',
             'date' => 'date',        // DATE -> Carbon date
             'time_in' => 'string',   // TIME -> keep as HH:MM:SS string
@@ -45,5 +47,10 @@ class DailyTimeRecord extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
     }
 }

@@ -30,11 +30,17 @@ class SiteLocationData
             ->filter(fn (mixed $value): bool => $value !== null && $value !== '')
             ->all();
 
+        $wfhAnchorEnforced = (bool) ($attributes['wfh_anchor_enforced'] ?? true);
+        $wfhAnchorLimit = isset($attributes['wfh_anchor_limit_m']) ? (int) $attributes['wfh_anchor_limit_m'] : null;
+
         return [
             'company_name' => $attributes['company_name'],
             'address' => $address === [] ? null : json_encode($address, JSON_THROW_ON_ERROR),
             'allowed_radius_m' => (int) $attributes['allowed_radius_m'],
             'enforce_geofence' => (bool) ($attributes['enforce_geofence'] ?? true),
+            'wfh_anchor_enforced' => $wfhAnchorEnforced,
+            // When enforcement is off, keep the stored limit nullable to avoid implying it is active.
+            'wfh_anchor_limit_m' => $wfhAnchorEnforced ? ($wfhAnchorLimit ?: 20) : null,
             'is_active' => (bool) ($attributes['is_active'] ?? true),
             'location' => $this->pointExpression(
                 latitude: (float) $attributes['latitude'],
@@ -55,6 +61,8 @@ class SiteLocationData
             'address' => $site->address,
             'allowed_radius_m' => (int) $site->allowed_radius_m,
             'enforce_geofence' => (bool) $site->enforce_geofence,
+            'wfh_anchor_enforced' => (bool) $site->wfh_anchor_enforced,
+            'wfh_anchor_limit_m' => $site->wfh_anchor_limit_m !== null ? (int) $site->wfh_anchor_limit_m : null,
             'is_active' => (bool) $site->is_active,
             ...$this->coordinatesFor($site),
         ];

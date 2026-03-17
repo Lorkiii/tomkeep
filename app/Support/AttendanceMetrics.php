@@ -38,7 +38,7 @@ class AttendanceMetrics
         }
 
         // Calculate gross worked time (total duration)
-        $total = $timeOut->diffInSeconds($timeIn);
+        $total = $timeIn->diffInSeconds($timeOut);
 
         // Deduct lunch break if both lunch timestamps are present
         if (! empty($record['lunch_out']) && ! empty($record['lunch_in'])) {
@@ -47,7 +47,7 @@ class AttendanceMetrics
 
             // Only subtract lunch if lunch_in is after lunch_out (valid lunch period)
             if ($lunchIn->greaterThan($lunchOut)) {
-                $total -= $lunchIn->diffInSeconds($lunchOut);
+                $total -= $lunchOut->diffInSeconds($lunchIn);
             }
         }
 

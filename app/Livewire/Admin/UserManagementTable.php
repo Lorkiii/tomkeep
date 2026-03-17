@@ -28,6 +28,13 @@ class UserManagementTable extends Component
         'profileFilter' => ['except' => 'all'],
     ];
 
+    public function mount(string $role = 'all'): void
+    {
+        if (in_array($role, ['all', 'admin', 'student'], true)) {
+            $this->roleFilter = $role;
+        }
+    }
+
     /**
      * Return to the first page whenever the search term changes.
      */
