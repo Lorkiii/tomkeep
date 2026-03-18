@@ -1,27 +1,4 @@
 <div class="space-y-6">
-    {{-- Period Statistics Cards Section --}}
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {{-- Card 1: Total Records in Period --}}
-        <section class="rounded-[1.6rem] border border-[#d7e2f5] bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(224,235,247,0.96))] p-5 shadow-[0_28px_60px_-38px_rgba(15,23,42,0.35)]">
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Period Records</p>
-            <p class="mt-3 text-4xl font-black text-[#1e4fa3]">{{ $periodTotals['records'] }}</p>
-            <p class="mt-2 text-sm text-slate-600">Attendance records inside the selected date range.</p>
-        </section>
-
-        {{-- Card 2: Completed Logs (time_out set) --}}
-        <section class="rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-[0_28px_60px_-38px_rgba(15,23,42,0.35)]">
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Completed Logs</p>
-            <p class="mt-3 text-4xl font-black text-emerald-700">{{ $periodTotals['completed'] }}</p>
-            <p class="mt-2 text-sm text-slate-600">Records where students completed time-out.</p>
-        </section>
-
-        {{-- Card 3: Total Aggregated Hours --}}
-        <section class="rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-[0_28px_60px_-38px_rgba(15,23,42,0.35)]">
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Total Hours</p>
-            <p class="mt-3 text-4xl font-black text-[#1e4fa3]">{{ $periodTotals['totalHours'] }}</p>
-            <p class="mt-2 text-sm text-slate-600">Aggregated worked hours from all records in range.</p>
-        </section>
-    </div>
 
     {{-- Main Reports Section with Filters, Chart, and Records Table --}}
     <section class="rounded-[1.8rem] border border-slate-200/80 bg-white/90 p-5 shadow-[0_30px_70px_-42px_rgba(15,23,42,0.45)] backdrop-blur sm:p-6">
