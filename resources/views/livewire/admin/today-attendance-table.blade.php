@@ -62,9 +62,21 @@
                             <p><span class="font-semibold text-slate-500">Lunch In:</span> {{ $row['lunch_in'] ?: '—' }}</p>
                         </div>
 
-                        <div class="flex items-center justify-between">
+                        <div class="text-xs text-slate-500">
+                            <p class="font-semibold text-slate-500">Location:</p>
+                            @if($row['time_in_latitude'] && $row['time_in_longitude'])
+                                <p>In: {{ number_format($row['time_in_latitude'], 6) }}, {{ number_format($row['time_in_longitude'], 6) }}</p>
+                            @endif
+                            @if($row['time_out_latitude'] && $row['time_out_longitude'])
+                                <p class="mt-0.5">Out: {{ number_format($row['time_out_latitude'], 6) }}, {{ number_format($row['time_out_longitude'], 6) }}</p>
+                            @endif
+                            @if((!$row['time_in_latitude'] || !$row['time_in_longitude']) && (!$row['time_out_latitude'] || !$row['time_out_longitude']))
+                                <p>—</p>
+                            @endif
+                        </div>
+
+                        <div class="flex items-center">
                             <span class="rounded-full bg-[#e8f0ff] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#1e4fa3]">{{ $row['worked_hours'] }} hrs</span>
-                            <span class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] {{ $row['is_complete'] ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">{{ $row['is_complete'] ? 'Complete' : 'In Progress' }}</span>
                         </div>
                     </div>
                 </article>
@@ -83,8 +95,8 @@
                             <th class="px-4 py-4">Lunch Out</th>
                             <th class="px-4 py-4">Lunch In</th>
                             <th class="px-4 py-4">Time Out</th>
+                            <th class="px-4 py-4">Location</th>
                             <th class="px-4 py-4">Worked</th>
-                            <th class="px-4 py-4">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 text-slate-600">
@@ -99,10 +111,18 @@
                                 <td class="px-4 py-4 align-top">{{ $row['lunch_out'] ?: '—' }}</td>
                                 <td class="px-4 py-4 align-top">{{ $row['lunch_in'] ?: '—' }}</td>
                                 <td class="px-4 py-4 align-top">{{ $row['time_out'] ?: '—' }}</td>
-                                <td class="px-4 py-4 align-top font-semibold text-[#1e4fa3]">{{ $row['worked_hours'] }}</td>
-                                <td class="px-4 py-4 align-top">
-                                    <span class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] {{ $row['is_complete'] ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">{{ $row['is_complete'] ? 'Complete' : 'In Progress' }}</span>
+                                <td class="px-4 py-4 align-top text-xs text-slate-500">
+                                    @if($row['time_in_latitude'] && $row['time_in_longitude'])
+                                        <span class="block">In: {{ number_format($row['time_in_latitude'], 6) }}, {{ number_format($row['time_in_longitude'], 6) }}</span>
+                                    @endif
+                                    @if($row['time_out_latitude'] && $row['time_out_longitude'])
+                                        <span class="block mt-1">Out: {{ number_format($row['time_out_latitude'], 6) }}, {{ number_format($row['time_out_longitude'], 6) }}</span>
+                                    @endif
+                                    @if((!$row['time_in_latitude'] || !$row['time_in_longitude']) && (!$row['time_out_latitude'] || !$row['time_out_longitude']))
+                                        <span>—</span>
+                                    @endif
                                 </td>
+                                <td class="px-4 py-4 align-top font-semibold text-[#1e4fa3]">{{ $row['worked_hours'] }}</td>
                             </tr>
                         @empty
                             <tr>

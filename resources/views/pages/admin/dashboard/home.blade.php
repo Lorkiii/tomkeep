@@ -9,13 +9,13 @@
         </div>
 
         @if(isset($currentAdminUser) && $currentAdminUser)
-            <div class="rounded-[1.4rem] border border-[#d5e0f0] bg-white/90 px-5 py-4 text-right shadow-[0_20px_50px_-35px_rgba(30,79,163,0.35)]">
-                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Signed In As</p>
-                <p class="mt-2 text-base font-bold text-[#1e4fa3]">
-                    {{ trim(($currentAdminUser['first_name'] ?? '') . ' ' . ($currentAdminUser['last_name'] ?? '')) ?: 'Admin User' }}
-                </p>
-                <p class="mt-1 text-sm text-slate-500">{{ $currentAdminUser['email'] ?? '' }}</p>
-            </div>
+        <div class="rounded-[1.4rem] border border-[#d5e0f0] bg-white/90 px-5 py-4 text-right shadow-[0_20px_50px_-35px_rgba(30,79,163,0.35)]">
+            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Signed In As</p>
+            <p class="mt-2 text-base font-bold text-[#1e4fa3]">
+                {{ trim(($currentAdminUser['first_name'] ?? '') . ' ' . ($currentAdminUser['last_name'] ?? '')) ?: 'Admin User' }}
+            </p>
+            <p class="mt-1 text-sm text-slate-500">{{ $currentAdminUser['email'] ?? '' }}</p>
+        </div>
         @endif
     </div>
 
@@ -60,12 +60,12 @@
 
         <div class="mt-5 grid gap-4 lg:grid-cols-3">
             @foreach(($alerts ?? []) as $alert)
-                <article class="rounded-[1.4rem] border p-4 {{ ($alert['tone'] ?? 'blue') === 'emerald' ? 'border-emerald-200 bg-emerald-50' : ((($alert['tone'] ?? 'blue') === 'amber') ? 'border-amber-200 bg-amber-50' : ((($alert['tone'] ?? 'blue') === 'slate') ? 'border-slate-200 bg-slate-50' : 'border-[#d7e2f5] bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(224,235,247,0.96))]')) }}">
-                    <p class="text-sm font-bold {{ ($alert['tone'] ?? 'blue') === 'amber' ? 'text-amber-700' : ((($alert['tone'] ?? 'blue') === 'emerald') ? 'text-emerald-700' : ((($alert['tone'] ?? 'blue') === 'slate') ? 'text-slate-700' : 'text-[#1e4fa3]')) }}">
-                        {{ $alert['title'] ?? 'Alert' }}
-                    </p>
-                    <p class="mt-2 text-sm leading-6 text-slate-600">{{ $alert['description'] ?? '' }}</p>
-                </article>
+            <article class="rounded-[1.4rem] border p-4 {{ ($alert['tone'] ?? 'blue') === 'emerald' ? 'border-emerald-200 bg-emerald-50' : ((($alert['tone'] ?? 'blue') === 'amber') ? 'border-amber-200 bg-amber-50' : ((($alert['tone'] ?? 'blue') === 'slate') ? 'border-slate-200 bg-slate-50' : 'border-[#d7e2f5] bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(224,235,247,0.96))]')) }}">
+                <p class="text-sm font-bold {{ ($alert['tone'] ?? 'blue') === 'amber' ? 'text-amber-700' : ((($alert['tone'] ?? 'blue') === 'emerald') ? 'text-emerald-700' : ((($alert['tone'] ?? 'blue') === 'slate') ? 'text-slate-700' : 'text-[#1e4fa3]')) }}">
+                    {{ $alert['title'] ?? 'Alert' }}
+                </p>
+                <p class="mt-2 text-sm leading-6 text-slate-600">{{ $alert['description'] ?? '' }}</p>
+            </article>
             @endforeach
         </div>
     </section>
@@ -82,25 +82,25 @@
 
             <div class="mt-5 space-y-3">
                 @forelse(($recentRequests ?? []) as $request)
-                    <article class="rounded-[1.4rem] border border-slate-200 bg-[#fbfbfc] px-4 py-4">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                                <p class="text-base font-bold text-[#1e4fa3]">{{ $request['name'] }}</p>
-                                <p class="mt-1 text-sm text-slate-500">{{ $request['email'] }}</p>
-                            </div>
-                            <span class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] {{ ($request['profile_completed'] ?? false) ? 'bg-sky-100 text-sky-700' : 'bg-slate-200 text-slate-600' }}">
-                                {{ ($request['profile_completed'] ?? false) ? 'Profile Complete' : 'Profile Incomplete' }}
-                            </span>
+                <article class="rounded-[1.4rem] border border-slate-200 bg-[#fbfbfc] px-4 py-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <p class="text-base font-bold text-[#1e4fa3]">{{ $request['name'] }}</p>
+                            <p class="mt-1 text-sm text-slate-500">{{ $request['email'] }}</p>
                         </div>
-                        <div class="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
-                            <p>Submitted {{ $request['submitted_at'] ?? 'Unknown' }}</p>
-                            <a href="{{ route('admin.student-approvals') }}" wire:navigate class="font-semibold text-[#1e4fa3] hover:text-[#173d79]">Open in queue</a>
-                        </div>
-                    </article>
-                @empty
-                    <div class="rounded-[1.5rem] border border-dashed border-[#d5e0f0] bg-[#f7f9fc] px-6 py-12 text-center text-sm text-slate-500">
-                        No pending approval requests right now.
+                        <span class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] {{ ($request['profile_completed'] ?? false) ? 'bg-sky-100 text-sky-700' : 'bg-slate-200 text-slate-600' }}">
+                            {{ ($request['profile_completed'] ?? false) ? 'Profile Complete' : 'Profile Incomplete' }}
+                        </span>
                     </div>
+                    <div class="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+                        <p>Submitted {{ $request['submitted_at'] ?? 'Unknown' }}</p>
+                        <a href="{{ route('admin.student-approvals') }}" wire:navigate class="font-semibold text-[#1e4fa3] hover:text-[#173d79]">Open in queue</a>
+                    </div>
+                </article>
+                @empty
+                <div class="rounded-[1.5rem] border border-dashed border-[#d5e0f0] bg-[#f7f9fc] px-6 py-12 text-center text-sm text-slate-500">
+                    No pending approval requests right now.
+                </div>
                 @endforelse
             </div>
         </section>
@@ -113,25 +113,25 @@
 
             <div class="mt-5 space-y-3">
                 @forelse(($recentDecisions ?? []) as $decision)
-                    <article class="rounded-[1.4rem] border border-slate-200 bg-[#fbfbfc] px-4 py-4">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                                <p class="text-base font-bold text-[#1e4fa3]">{{ $decision['name'] }}</p>
-                                <p class="mt-1 text-sm text-slate-500">{{ $decision['email'] }}</p>
-                            </div>
-                            <span class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] {{ ($decision['status'] ?? '') === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">
-                                {{ ucfirst($decision['status'] ?? 'pending') }}
-                            </span>
+                <article class="rounded-[1.4rem] border border-slate-200 bg-[#fbfbfc] px-4 py-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <p class="text-base font-bold text-[#1e4fa3]">{{ $decision['name'] }}</p>
+                            <p class="mt-1 text-sm text-slate-500">{{ $decision['email'] }}</p>
                         </div>
-                        <p class="mt-3 text-sm text-slate-500">Updated {{ $decision['decision_at'] ?? 'Unknown' }}</p>
-                        @if(!empty($decision['note']))
-                            <p class="mt-2 text-sm leading-6 text-slate-600">{{ $decision['note'] }}</p>
-                        @endif
-                    </article>
-                @empty
-                    <div class="rounded-[1.5rem] border border-dashed border-[#d5e0f0] bg-[#f7f9fc] px-6 py-12 text-center text-sm text-slate-500">
-                        No approval decisions have been recorded yet.
+                        <span class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] {{ ($decision['status'] ?? '') === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">
+                            {{ ucfirst($decision['status'] ?? 'pending') }}
+                        </span>
                     </div>
+                    <p class="mt-3 text-sm text-slate-500">Updated {{ $decision['decision_at'] ?? 'Unknown' }}</p>
+                    @if(!empty($decision['note']))
+                    <p class="mt-2 text-sm leading-6 text-slate-600">{{ $decision['note'] }}</p>
+                    @endif
+                </article>
+                @empty
+                <div class="rounded-[1.5rem] border border-dashed border-[#d5e0f0] bg-[#f7f9fc] px-6 py-12 text-center text-sm text-slate-500">
+                    No approval decisions have been recorded yet.
+                </div>
                 @endforelse
             </div>
         </section>

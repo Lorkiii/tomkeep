@@ -9,13 +9,13 @@
         </div>
 
         @if(isset($currentAdminUser) && $currentAdminUser)
-            <div class="rounded-[1.4rem] border border-[#d5e0f0] bg-white/90 px-5 py-4 text-right shadow-[0_20px_50px_-35px_rgba(30,79,163,0.35)]">
-                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Reviewing As</p>
-                <p class="mt-2 text-base font-bold text-[#1e4fa3]">
-                    {{ trim(($currentAdminUser['first_name'] ?? '') . ' ' . ($currentAdminUser['last_name'] ?? '')) ?: 'Admin User' }}
-                </p>
-                <p class="mt-1 text-sm text-slate-500">{{ $currentAdminUser['email'] ?? '' }}</p>
-            </div>
+        <div class="rounded-[1.4rem] border border-[#d5e0f0] bg-white/90 px-5 py-4 text-right shadow-[0_20px_50px_-35px_rgba(30,79,163,0.35)]">
+            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Reviewing As</p>
+            <p class="mt-2 text-base font-bold text-[#1e4fa3]">
+                {{ trim(($currentAdminUser['first_name'] ?? '') . ' ' . ($currentAdminUser['last_name'] ?? '')) ?: 'Admin User' }}
+            </p>
+            <p class="mt-1 text-sm text-slate-500">{{ $currentAdminUser['email'] ?? '' }}</p>
+        </div>
         @endif
     </div>
 
