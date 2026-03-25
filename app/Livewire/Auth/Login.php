@@ -25,6 +25,7 @@ class Login extends Component
 
     protected function rules(): array
     {
+        // Basic login validation for the submitted credentials.
         return [
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
@@ -33,22 +34,41 @@ class Login extends Component
 
     public function login(): void
     {
-        // Attempt authentication and route users based on profile completion state.
+        // Validate first so empty submissions do not reach the auth layer.
         $this->validate();
 
+        // Attempt to authenticate using the username and password from the form.
         if (!Auth::attempt(['username' => $this->username, 'password' => $this->password])) {
             $this->addError('username', 'Invalid username or password.');
             return;
         }
 
+        // Prevent session fixation after a successful login.
         request()->session()->regenerate();
 
-        $target = Auth::user()?->profile_completed ? 'home' : 'profile.setup';
+        $user = Auth::user();
+
+        // Admins go to the admin dashboard.
+        // Students are routed based on profile-completion and approval status.
+        if ($user?->role === 'admin') {
+            $target = 'admin.dashboard';
+        } elseif (! $user?->profile_completed) {
+            $target = 'profile.setup';
+        } elseif ($user?->status === 'rejected') {
+            $target = 'application-rejected';
+        } elseif ($user?->status !== 'approved') {
+            $target = 'waiting-approval';
+        } else {
+            $target = 'home';
+        }
+
+        // Livewire navigate keeps the experience smoother than a hard full-page reload.
         $this->redirect(route($target), navigate: true);
     }
 
     public function render()
     {
+        // Render the login Blade view used by this Livewire component.
         return view('livewire.auth.login');
     }
 }

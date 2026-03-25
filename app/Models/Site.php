@@ -10,6 +10,9 @@ class Site extends Model
         'company_name',
         'address',
         'allowed_radius_m',
+        'enforce_geofence',
+        'wfh_anchor_enforced',
+        'wfh_anchor_limit_m',
         'location',
         'is_active',
     ];
@@ -19,6 +22,9 @@ class Site extends Model
         return [
             'address' => 'array',
             'allowed_radius_m' => 'integer',
+            'enforce_geofence' => 'boolean',
+            'wfh_anchor_enforced' => 'boolean',
+            'wfh_anchor_limit_m' => 'integer',
             'is_active' => 'boolean',
         ];
     }

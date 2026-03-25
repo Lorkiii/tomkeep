@@ -19,6 +19,9 @@ return new class extends Migration
             // Allowed radius in meters
             $table->unsignedInteger('allowed_radius_m')->default(100);
 
+            // Toggle whether this site's radius should classify logs as on-site.
+            $table->boolean('enforce_geofence')->default(true);
+
             // GPS location (POINT SRID 4326 added via raw SQL)
 
             // Optional status

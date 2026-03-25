@@ -1,6 +1,7 @@
 {
     "agents": [
-        "copilot"
+        "copilot",
+        "windsurf"
     ],
     "herd_mcp": false,
     "mcp": true,

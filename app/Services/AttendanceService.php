@@ -5,11 +5,17 @@ namespace App\Services;
 use App\Exceptions\AttendanceException;
 use App\Models\AuditLog;
 use App\Models\DailyTimeRecord;
+use App\Models\Site;
 use App\Models\User;
+use App\Support\AttendancePolicy;
 use Illuminate\Support\Facades\DB;
 
 class AttendanceService
 {
+    public function __construct(private readonly AttendancePolicy $attendancePolicy)
+    {
+    }
+
     public const ACTION_TIME_IN = 'time_in';
     public const ACTION_LUNCH_OUT = 'lunch_out';
     public const ACTION_LUNCH_IN = 'lunch_in';
@@ -32,11 +38,13 @@ class AttendanceService
         int $userId,
         string $action,
         ?string $occurredAt = null,
+        ?float $latitude = null,
+        ?float $longitude = null,
         ?int $actorUserId = null,
         ?string $ipAddress = null,
         ?string $userAgent = null
     ): DailyTimeRecord {
-        return DB::transaction(function () use ($userId, $action, $occurredAt, $actorUserId, $ipAddress, $userAgent) {
+        return DB::transaction(function () use ($userId, $action, $occurredAt, $latitude, $longitude, $actorUserId, $ipAddress, $userAgent) {
             $user = User::query()->find($userId);
 
             if (! $user) {
@@ -46,6 +54,8 @@ class AttendanceService
             if ($user->status !== 'approved') {
                 throw new AttendanceException('User is not approved for attendance actions.', 'USER_NOT_APPROVED', 403);
             }
+
+            $this->assertValidLocation($latitude, $longitude);
 
             $date = now()->toDateString();
             $time = $occurredAt ?? now()->format('H:i:s');
@@ -57,17 +67,37 @@ class AttendanceService
                 ->first();
 
             if ($action === self::ACTION_TIME_IN && ! $record) {
+                $matchedSite = $this->findMatchingSite($latitude, $longitude);
+                $attendanceMode = $this->attendanceModeFor($matchedSite);
+                $siteId = $matchedSite['id'] ?? null;
+                $wfhLimit = $this->wfhMovementLimitForNewRecord($attendanceMode, $matchedSite);
+
                 $record = DailyTimeRecord::query()->create([
                     'user_id' => $userId,
+                    'site_id' => $siteId,
+                    'attendance_mode' => $attendanceMode,
                     'date' => $date,
                     'time_in' => $time,
+                    'time_in_latitude' => $latitude,
+                    'time_in_longitude' => $longitude,
+                    // Persist the current global rule on the record so future
+                    // policy changes do not retroactively rewrite prior DTRs.
+                    // When null, WFH anchor movement is treated as unlimited for this record.
+                    'wfh_movement_limit_m' => $wfhLimit,
                 ]);
 
                 $this->logAttendanceAction(
                     actorUserId: $actorUserId ?? $userId,
                     record: $record,
                     oldValues: null,
-                    newValues: ['time_in' => $time],
+                    newValues: [
+                        'attendance_mode' => $record->attendance_mode,
+                        'site_id' => $record->site_id,
+                        'time_in' => $time,
+                        'time_in_latitude' => $latitude,
+                        'time_in_longitude' => $longitude,
+                        'wfh_movement_limit_m' => $record->wfh_movement_limit_m,
+                    ],
                     ipAddress: $ipAddress,
                     userAgent: $userAgent
                 );
@@ -80,22 +110,43 @@ class AttendanceService
             }
 
             $this->assertActionAllowed($record, $action);
+            $this->assertTimeOutWithinMovementLimit($record, $action, $latitude, $longitude);
 
             $oldValues = [
+                'attendance_mode' => $record->attendance_mode,
+                'site_id' => $record->site_id,
                 'time_in' => $record->time_in,
+                'time_in_latitude' => $record->time_in_latitude,
+                'time_in_longitude' => $record->time_in_longitude,
                 'lunch_out' => $record->lunch_out,
                 'lunch_in' => $record->lunch_in,
                 'time_out' => $record->time_out,
+                'time_out_latitude' => $record->time_out_latitude,
+                'time_out_longitude' => $record->time_out_longitude,
+                'wfh_movement_limit_m' => $record->wfh_movement_limit_m,
             ];
 
             $record->{$action} = $time;
+
+            if ($action === self::ACTION_TIME_OUT) {
+                $record->time_out_latitude = $latitude;
+                $record->time_out_longitude = $longitude;
+            }
+
             $record->save();
 
             $newValues = [
+                'attendance_mode' => $record->attendance_mode,
+                'site_id' => $record->site_id,
                 'time_in' => $record->time_in,
+                'time_in_latitude' => $record->time_in_latitude,
+                'time_in_longitude' => $record->time_in_longitude,
                 'lunch_out' => $record->lunch_out,
                 'lunch_in' => $record->lunch_in,
                 'time_out' => $record->time_out,
+                'time_out_latitude' => $record->time_out_latitude,
+                'time_out_longitude' => $record->time_out_longitude,
+                'wfh_movement_limit_m' => $record->wfh_movement_limit_m,
             ];
 
             $this->logAttendanceAction(
@@ -162,6 +213,175 @@ class AttendanceService
         }
 
         throw new AttendanceException('Invalid attendance action.', 'INVALID_ACTION');
+    }
+
+    private function assertValidLocation(?float $latitude, ?float $longitude): void
+    {
+        if ($latitude === null || $longitude === null) {
+            throw new AttendanceException('Current GPS location is required before recording attendance.', 'ATTENDANCE_LOCATION_REQUIRED');
+        }
+
+        if ($latitude < -90 || $latitude > 90 || $longitude < -180 || $longitude > 180) {
+            throw new AttendanceException('The captured GPS coordinates are invalid. Please try again.', 'ATTENDANCE_LOCATION_INVALID');
+        }
+    }
+
+    /**
+     * @param array<string, mixed>|null $matchedSite
+     */
+    private function attendanceModeFor(?array $matchedSite): string
+    {
+        if (! $matchedSite) {
+            return 'wfh';
+        }
+
+        return ! empty($matchedSite['enforce_geofence']) ? 'on_site' : 'wfh';
+    }
+
+    private function assertTimeOutWithinMovementLimit(DailyTimeRecord $record, string $action, float $latitude, float $longitude): void
+    {
+        // The anchor-distance rule applies only to WFH time-out. On-site logs
+        // are governed by site radius checks when the day is first classified.
+        if ($action !== self::ACTION_TIME_OUT || $record->attendance_mode !== 'wfh') {
+            return;
+        }
+
+        if ($record->time_in_latitude === null || $record->time_in_longitude === null) {
+            return;
+        }
+
+        // If movement limit is null, treat this record as "unlimited" WFH time-out range.
+        if ($record->wfh_movement_limit_m === null) {
+            return;
+        }
+
+        $movementLimit = (int) $record->wfh_movement_limit_m;
+        $distance = $this->distanceMeters(
+            $record->time_in_latitude,
+            $record->time_in_longitude,
+            $latitude,
+            $longitude,
+        );
+        // If the user tries to finish the day from a materially different WFH
+        // location, reject the action and keep the anchor point authoritative.
+        if ($distance > $movementLimit) {
+            throw new AttendanceException(
+                'Time out must be recorded near your original time-in location.',
+                'ATTENDANCE_TIMEOUT_TOO_FAR'
+            );
+        }
+    }
+
+    /**
+     * Returns the first active site that contains the given point within its configured radius.
+     * Sites are considered even when enforce_geofence is off so WFH policies can still be
+     * associated to the nearby site for per-site WFH anchoring.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function findMatchingSite(float $latitude, float $longitude): ?array
+    {
+        foreach ($this->activeSitesForMatching() as $site) {
+            $distance = $this->distanceMeters(
+                (float) $site['latitude'],
+                (float) $site['longitude'],
+                $latitude,
+                $longitude,
+            );
+
+            if ($distance <= (int) $site['allowed_radius_m']) {
+                return $site;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function activeSitesForMatching(): array
+    {
+        $driver = DB::connection()->getDriverName();
+
+        if (in_array($driver, ['mysql', 'mariadb'], true)) {
+            return DB::table('sites')
+                ->selectRaw('id, allowed_radius_m, enforce_geofence, wfh_anchor_enforced, wfh_anchor_limit_m, ST_Y(location) as latitude, ST_X(location) as longitude')
+                ->where('is_active', true)
+                ->get()
+                ->map(fn ($site): array => [
+                    'id' => (int) $site->id,
+                    'allowed_radius_m' => (int) $site->allowed_radius_m,
+                    'enforce_geofence' => (bool) $site->enforce_geofence,
+                    'wfh_anchor_enforced' => (bool) $site->wfh_anchor_enforced,
+                    'wfh_anchor_limit_m' => $site->wfh_anchor_limit_m !== null ? (int) $site->wfh_anchor_limit_m : null,
+                    'latitude' => (float) $site->latitude,
+                    'longitude' => (float) $site->longitude,
+                ])
+                ->all();
+        }
+
+        return Site::query()
+            ->where('is_active', true)
+            ->get(['id', 'allowed_radius_m', 'enforce_geofence', 'wfh_anchor_enforced', 'wfh_anchor_limit_m', 'location'])
+            ->map(function (Site $site): array {
+                preg_match('/POINT\(([-0-9.]+)\s+([-0-9.]+)\)/', (string) $site->location, $matches);
+
+                return [
+                    'id' => (int) $site->id,
+                    'allowed_radius_m' => (int) $site->allowed_radius_m,
+                    'enforce_geofence' => (bool) $site->enforce_geofence,
+                    'wfh_anchor_enforced' => (bool) $site->wfh_anchor_enforced,
+                    'wfh_anchor_limit_m' => $site->wfh_anchor_limit_m !== null ? (int) $site->wfh_anchor_limit_m : null,
+                    'latitude' => isset($matches[2]) ? (float) $matches[2] : 0.0,
+                    'longitude' => isset($matches[1]) ? (float) $matches[1] : 0.0,
+                ];
+            })
+            ->all();
+    }
+
+    private function distanceMeters(float $fromLatitude, float $fromLongitude, float $toLatitude, float $toLongitude): float
+    {
+        $earthRadius = 6371000;
+        $latDelta = deg2rad($toLatitude - $fromLatitude);
+        $lonDelta = deg2rad($toLongitude - $fromLongitude);
+
+        $haversine = sin($latDelta / 2) ** 2
+            + cos(deg2rad($fromLatitude)) * cos(deg2rad($toLatitude)) * sin($lonDelta / 2) ** 2;
+
+        $arc = 2 * atan2(sqrt($haversine), sqrt(1 - $haversine));
+
+        return $earthRadius * $arc;
+    }
+
+    private function defaultWfhMovementLimit(): int
+    {
+        // The policy layer owns how the current global rule is resolved so the
+        // attendance service does not need to know whether the value comes
+        // from fallback config or the admin-managed system setting.
+        return $this->attendancePolicy->wfhAnchorLimitMeters();
+    }
+
+    /**
+     * @param array<string, mixed>|null $matchedSite
+     */
+    private function wfhMovementLimitForNewRecord(string $attendanceMode, ?array $matchedSite): ?int
+    {
+        if ($attendanceMode !== 'wfh') {
+            return null;
+        }
+
+        if ($matchedSite) {
+            if (array_key_exists('wfh_anchor_enforced', $matchedSite) && ! $matchedSite['wfh_anchor_enforced']) {
+                return null;
+            }
+
+            if (isset($matchedSite['wfh_anchor_limit_m']) && is_int($matchedSite['wfh_anchor_limit_m'])) {
+                return max(1, $matchedSite['wfh_anchor_limit_m']);
+            }
+        }
+
+        return $this->defaultWfhMovementLimit();
     }
 
     private function logAttendanceAction(

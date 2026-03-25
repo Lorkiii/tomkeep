@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->string('last_name', 30)->nullable();
             $table->string('gender', 20)->nullable();
             $table->string('student_code', 20)->nullable()->unique();
+            $table->string('position', 120)->default('OJT Trainee');
             $table->string('contact_number', 11)->nullable();
             $table->json('address')->nullable();
             $table->string('course',255)->nullable();
