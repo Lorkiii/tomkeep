@@ -21,6 +21,15 @@ class AttendanceReportsTable extends Component
     // Pagination limit
     private const PER_PAGE = 10;
 
+    // View mode: 'table' or 'calendar'
+    public string $viewMode = 'table';
+
+    // Status filter: 'all', 'complete', 'incomplete'
+    public string $statusFilter = 'all';
+
+    // Active date preset: 'custom', 'today', 'week', 'month', 'last_month'
+    public string $datePreset = 'month';
+
     // Search term for filtering by name, code, email
     public string $search = '';
 
@@ -40,15 +49,8 @@ class AttendanceReportsTable extends Component
         $this->fromDate = now()->startOfMonth()->toDateString();
         // Set to date to today
         $this->toDate = now()->toDateString();
-    }
-
-    /**
-     * Reset pagination to page 1 when search term changes.
-     * Fired when wire:model.live detects input changes.
-     */
-    public function updatedSearch(): void
-    {
-        $this->resetPage();
+        // Default to month preset
+        $this->datePreset = 'month';
     }
 
     /**
@@ -56,15 +58,103 @@ class AttendanceReportsTable extends Component
      */
     public function updatedFromDate(): void
     {
+        $this->datePreset = 'custom';
         $this->resetPage();
     }
 
     /**
-     * Reset pagination when to date changes to show filtered results from page 1.
+     * Reset pagination when to date changes.
      */
     public function updatedToDate(): void
     {
+        $this->datePreset = 'custom';
         $this->resetPage();
+    }
+
+    /**
+     * Reset pagination when search term changes.
+     */
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    /**
+     * Reset pagination when status filter changes.
+     */
+    public function updatedStatusFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    /**
+     * Set view mode (table or calendar).
+     */
+    public function setViewMode(string $mode): void
+    {
+        $this->viewMode = $mode;
+        $this->resetPage();
+    }
+
+    /**
+     * Set date preset to custom.
+     */
+    public function setCustomPreset(): void
+    {
+        $this->datePreset = 'custom';
+    }
+
+    /**
+     * Navigate to previous or next month in calendar view.
+     */
+    public function navigateMonth(string $direction): void
+    {
+        $from = Carbon::parse($this->fromDate);
+        $to = Carbon::parse($this->toDate);
+
+        if ($direction === 'previous') {
+            $this->fromDate = $from->subMonth()->startOfMonth()->toDateString();
+            $this->toDate = $from->subMonth()->endOfMonth()->toDateString();
+        } else {
+            $this->fromDate = $from->addMonth()->startOfMonth()->toDateString();
+            $this->toDate = $from->addMonth()->endOfMonth()->toDateString();
+        }
+
+        $this->datePreset = 'custom';
+        $this->resetPage();
+    }
+
+    /**
+     * Apply date preset and update date range.
+     */
+    public function applyDatePreset(string $preset): void
+    {
+        $this->datePreset = $preset;
+
+        switch ($preset) {
+            case 'today':
+                $this->fromDate = now()->toDateString();
+                $this->toDate = now()->toDateString();
+                break;
+            case 'week':
+                $this->fromDate = now()->startOfWeek()->toDateString();
+                $this->toDate = now()->endOfWeek()->toDateString();
+                break;
+            case 'month':
+                $this->fromDate = now()->startOfMonth()->toDateString();
+                $this->toDate = now()->endOfMonth()->toDateString();
+                break;
+            case 'last_month':
+                $this->fromDate = now()->subMonth()->startOfMonth()->toDateString();
+                $this->toDate = now()->subMonth()->endOfMonth()->toDateString();
+                break;
+            case 'custom':
+                // Keep current dates, let user adjust manually
+                break;
+        }
+
+        $this->resetPage();
+        $this->dispatch('chartUpdated');
     }
 
     /**
@@ -91,7 +181,7 @@ class AttendanceReportsTable extends Component
         $from = $this->normalizedFromDate();
         $to = $this->normalizedToDate();
 
-        // Build base query: join attendance with student profiles, filter by date range
+        // Build base query: join attendance with student profiles, filter by date range and status
         $query = DailyTimeRecord::query()
             ->join('users', 'users.id', '=', 'daily_time_records.user_id')
             // Date range boundaries (inclusive)
@@ -99,6 +189,13 @@ class AttendanceReportsTable extends Component
             ->whereDate('daily_time_records.date', '<=', $to)
             // Students only
             ->where('users.role', 'student')
+            // Apply status filter
+            ->when($this->statusFilter === 'complete', function ($query): void {
+                $query->whereNotNull('daily_time_records.time_out');
+            })
+            ->when($this->statusFilter === 'incomplete', function ($query): void {
+                $query->whereNull('daily_time_records.time_out');
+            })
             // Apply search filter for multi-field lookup
             ->when($this->search !== '', function ($query): void {
                 $term = '%' . $this->search . '%';
@@ -191,8 +288,78 @@ class AttendanceReportsTable extends Component
             'totalHours' => round(array_sum(array_column($dailyTrend, 'hours')), 2),
         ];
 
+        // Build flat calendar days array for Alpine component (not grouped by month)
+        $calendarDays = collect(CarbonPeriod::create($from, $to))
+            ->map(function (Carbon $day, $index) use ($dailyTrend) {
+                $dateKey = $day->toDateString();
+                $recordsForDay = DailyTimeRecord::query()
+                    ->join('users', 'users.id', '=', 'daily_time_records.user_id')
+                    ->whereDate('daily_time_records.date', $dateKey)
+                    ->where('users.role', 'student')
+                    ->when($this->statusFilter === 'complete', function ($q) {
+                        $q->whereNotNull('daily_time_records.time_out');
+                    })
+                    ->when($this->statusFilter === 'incomplete', function ($q) {
+                        $q->whereNull('daily_time_records.time_out');
+                    })
+                    ->get([
+                        'daily_time_records.*',
+                        'users.first_name',
+                        'users.last_name',
+                        'users.student_code',
+                        'users.email',
+                    ]);
+
+                // Find hours for this day from dailyTrend
+                $dayHours = 0;
+                foreach ($dailyTrend as $trend) {
+                    if ($trend['label'] === $day->format('M j')) {
+                        $dayHours = $trend['hours'];
+                        break;
+                    }
+                }
+
+                return [
+                    'date' => $dateKey,
+                    'day' => $day->day,
+                    'month' => $day->format('M'),
+                    'year' => $day->year,
+                    'weekday' => $day->format('D'),
+                    'isToday' => $day->isToday(),
+                    'hasRecords' => $recordsForDay->count() > 0,
+                    'recordCount' => $recordsForDay->count(),
+                    'hours' => $dayHours,
+                    'records' => $recordsForDay->map(function ($record) {
+                        $name = trim(($record->first_name ?? '') . ' ' . ($record->last_name ?? ''));
+
+                        // Joined columns are commonly returned as strings (not Carbon instances)
+                        $timeIn = filled($record->time_in) ? substr((string) $record->time_in, 0, 5) : null;
+                        $timeOut = filled($record->time_out) ? substr((string) $record->time_out, 0, 5) : null;
+
+                        return [
+                            'id' => $record->id,
+                            'name' => $name !== '' ? $name : null,
+                            'code' => $record->student_code,
+                            'timeIn' => $timeIn,
+                            'timeOut' => $timeOut,
+                        ];
+                    })->values()->toArray(),
+                ];
+            })
+            ->values()
+            ->toArray();
+
         // Find maximum hours in trend for chart bar scaling (prevent division by zero)
         $maxHours = max(1.0, (float) max(array_column($dailyTrend, 'hours') ?: [1.0]));
+
+        // Dispatch chart data update for Alpine.js to receive
+        $this->dispatch('chartDataUpdated', [
+            'labels' => array_column($dailyTrend, 'label'),
+            'data' => array_column($dailyTrend, 'hours'),
+        ]);
+
+        // Current month label for calendar header
+        $currentMonth = Carbon::parse($from)->format('F Y');
 
         return view('livewire.admin.attendance-reports-table', [
             'rows' => $rows,
@@ -200,6 +367,10 @@ class AttendanceReportsTable extends Component
             'dailyTrend' => $dailyTrend,
             'periodTotals' => $periodTotals,
             'maxHours' => $maxHours,
+            'calendarDays' => $calendarDays,
+            'currentMonth' => $currentMonth,
+            'fromDate' => $from,
+            'toDate' => $to,
             'exportUrl' => $this->exportUrl(),
         ]);
     }
